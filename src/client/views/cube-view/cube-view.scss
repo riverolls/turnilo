@@ -148,7 +148,9 @@ $control-panel-height: 3 * $control-tile-height + 2px;
   }
 
   .pinboard-panel {
-    @include pin-right($pinboard-width);
+    // @include pin-right($pinboard-width);
+    @include pin-left($left-panel-width);
+    top: 470px;
     @include for-small-screens {
       margin-bottom: 0;
     }
@@ -167,5 +169,26 @@ $control-panel-height: 3 * $control-tile-height + 2px;
       }
     }
   }
+  
+  .measures-tile {
+    @include pin-right($pinboard-width);
+    @include for-small-screens {
+      margin-bottom: 0;
+    }
 
+    margin: 10px 10px 0 0 ;
+    margin-bottom: $tile-margin-v - 1px;
+
+    .pinboard-measure-tile,
+    .dimension-tile,
+    .placeholder-tile {
+      &:first-child {
+        border-radius: $corner $corner 0 0;
+      }
+
+      &:last-child {
+        border-radius: 0 0 $corner $corner;
+      }
+    }
+  }
 }

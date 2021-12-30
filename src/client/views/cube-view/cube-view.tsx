@@ -61,6 +61,8 @@ import "./cube-view.scss";
 import { DownloadableDatasetProvider } from "./downloadable-dataset-context";
 import { PartialTilesProvider } from "./partial-tiles-provider";
 
+import { MeasuresTile } from "../../components/measures-tile/measures-tile";
+
 const ToggleArrow: React.SFC<{ right: boolean }> = ({ right }) =>
   right
     ? <SvgIcon svg={require("../../icons/full-caret-small-right.svg")}/>
@@ -80,6 +82,7 @@ export interface CubeViewLayout {
 const defaultLayout: CubeViewLayout = {
   factPanel: { width: 240 },
   pinboard: { width: 240 }
+  
 };
 
 export interface CubeViewProps {
@@ -638,6 +641,17 @@ export class CubeView extends React.Component<CubeViewProps, CubeViewState> {
                 essence={essence}
                 timekeeper={timekeeper}
                 refreshRequestTimestamp={lastRefreshRequestTimestamp}/>}
+
+              {!layout.pinboard.hidden && <MeasuresTile
+                  menuStage={menuStage}
+                  style={styles.measuresTile}
+                  clicker={clicker}
+                  essence={essence}
+                  addPartialSeries={series =>
+                    addSeries(series, DragPosition.insertAt(essence.series.count()))}
+                />}
+
+            
             </React.Fragment>}</PartialTilesProvider>
           </div>
           {this.renderDruidQueryModal()}
@@ -690,15 +704,17 @@ export class CubeView extends React.Component<CubeViewProps, CubeViewState> {
       const dimensionsWidth = isDimensionPanelHidden ? 0 : 200;
       const pinboardWidth = isPinboardHidden ? 0 : 200;
       return {
-        dimensionMeasurePanel: { width: dimensionsWidth },
+        dimensionMeasurePanel: { width: dimensionsWidth, height: 450 },
         centerPanel: { left: dimensionsWidth, right: pinboardWidth },
-        pinboardPanel: { width: pinboardWidth }
+        pinboardPanel: { width: pinboardWidth },
+        measuresTile: { width: pinboardWidth }
       };
     }
     const nonSmallLayoutPadding = 10;
     return {
       dimensionMeasurePanel: {
-        width: isDimensionPanelHidden ? 0 : layout.factPanel.width
+        width: isDimensionPanelHidden ? 0 : layout.factPanel.width,
+        height: 450
       },
       centerPanel: {
         left: isDimensionPanelHidden ? nonSmallLayoutPadding : layout.factPanel.width,
@@ -706,6 +722,9 @@ export class CubeView extends React.Component<CubeViewProps, CubeViewState> {
       },
       pinboardPanel: {
         width: isPinboardHidden ? 0 : layout.pinboard.width
+      },
+      measuresTile: {
+        width: 220
       }
     };
   }

@@ -187,7 +187,7 @@ export class MeasuresTile extends Component<MeasuresTileProps, MeasuresTileState
       addPartialSeries={addPartialSeries}
       addSeries={this.addSeries}
       series={essence.series}
-      direction="right"
+      direction="down"
       containerStage={menuStage}
       openOn={menuOpenOn}
       measure={menuMeasure}

@@ -100,7 +100,8 @@ export class DimensionMeasurePanel extends React.Component<DimensionMeasurePanel
     const { maxDividerPosition, minDividerPosition } = dividerConstraints(containerHeight);
 
     const dimensionListStyle: React.CSSProperties = {
-      height: dividerPosition
+      // height: dividerPosition
+      height: 450
     };
 
     const measureListStyle: React.CSSProperties = {
@@ -118,7 +119,7 @@ export class DimensionMeasurePanel extends React.Component<DimensionMeasurePanel
           addPartialFilter={addPartialFilter}
           style={dimensionListStyle}
         />
-        {showResizeHandle &&
+        {/* {showResizeHandle &&
         <ResizeHandle
           onResize={this.saveDividerPosition}
           direction={Direction.TOP}
@@ -126,14 +127,14 @@ export class DimensionMeasurePanel extends React.Component<DimensionMeasurePanel
           max={maxDividerPosition}
           value={dividerPosition}>
           <DragHandle />
-        </ResizeHandle>}
-        <MeasuresTile
+        </ResizeHandle>} */}
+        {/* <MeasuresTile
           menuStage={menuStage}
           style={measureListStyle}
           clicker={clicker}
           essence={essence}
           addPartialSeries={addPartialSeries}
-        />
+        /> */}
       </div>
     </div>;
   }
