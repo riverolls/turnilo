@@ -49,11 +49,14 @@ export function adjustLimit({ kind, limits }: Dimension) {
 }
 
 export function adjustFiniteLimit(availableLimits: number[], defaultLimit = availableLimits[0]) {
+  
   return function(split: Split): Split {
     const { limit } = split;
-    return availableLimits.indexOf(limit) === -1
-      ? split.changeLimit(defaultLimit)
-      : split;
+    console.log('limit', limit)
+    // return availableLimits.indexOf(limit) === -1
+    //   ? split.changeLimit(defaultLimit)
+    //   : split;
+    return split
   };
 }
 

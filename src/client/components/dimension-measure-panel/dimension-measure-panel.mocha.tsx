@@ -37,6 +37,8 @@ describe("DimensionMeasurePanel", () => {
         essence={EssenceFixtures.wikiTotals()}
         menuStage={null}
         addPartialSeries={null}
+        timekeeper={null}
+        refreshRequestTimestamp={0}
       />
     );
   }

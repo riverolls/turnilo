@@ -23,7 +23,7 @@ import { DimensionSortOn, SortOn } from "../../../common/models/sort-on/sort-on"
 import { Sort } from "../../../common/models/sort/sort";
 import { Split } from "../../../common/models/split/split";
 import { Stage } from "../../../common/models/stage/stage";
-import { Binary } from "../../../common/utils/functional/functional";
+import { Binary, cons } from "../../../common/utils/functional/functional";
 import { Fn } from "../../../common/utils/general/general";
 import { GranularityPicker } from "./granularity-picker";
 import { LimitDropdown } from "./limit-dropdown";
@@ -66,7 +66,9 @@ export class SplitMenu extends React.Component<SplitMenuProps, SplitMenuState> {
 
   saveSort = (sort: Sort) => this.setState({ sort });
 
-  saveLimit = (limit: number) => this.setState({ limit });
+  saveLimit = (limit: number) =>  {
+    this.setState({ limit });
+  }
 
   saveSplit = () => {
     const { split, saveSplit } = this.props;

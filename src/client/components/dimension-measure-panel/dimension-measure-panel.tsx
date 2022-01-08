@@ -29,7 +29,11 @@ import { clamp } from "../../utils/dom/dom";
 import { DimensionListTile } from "../dimension-list-tile/dimension-list-tile";
 import { MeasuresTile } from "../measures-tile/measures-tile";
 import { Direction, DragHandle, ResizeHandle } from "../resize-handle/resize-handle";
+
+import { Timekeeper } from "../../../common/models/timekeeper/timekeeper";
 import "./dimension-measure-panel.scss";
+
+import { PinboardPanel } from "../../components/pinboard-panel/pinboard-panel";
 
 export const MIN_PANEL_SIZE = 100;
 const RESIZE_HANDLE_SIZE = 12;
@@ -40,6 +44,8 @@ export interface DimensionMeasurePanelProps {
   menuStage: Stage;
   addPartialFilter: Unary<Dimension, void>;
   addPartialSeries: Unary<Series, void>;
+  timekeeper: Timekeeper;
+  refreshRequestTimestamp: number;
   style?: React.CSSProperties;
 }
 
@@ -95,7 +101,7 @@ export class DimensionMeasurePanel extends React.Component<DimensionMeasurePanel
   }
 
   render() {
-    const { clicker, essence, menuStage, addPartialFilter, addPartialSeries, style } = this.props;
+    const { clicker, essence, menuStage, addPartialFilter, addPartialSeries, style, timekeeper, refreshRequestTimestamp } = this.props;
     const { dividerPosition, containerHeight } = this.state;
     const { maxDividerPosition, minDividerPosition } = dividerConstraints(containerHeight);
 
@@ -127,13 +133,22 @@ export class DimensionMeasurePanel extends React.Component<DimensionMeasurePanel
           value={dividerPosition}>
           <DragHandle />
         </ResizeHandle>}
-        <MeasuresTile
+
+        {/* styles.pinboardPanel */}
+        <PinboardPanel
+          style={measureListStyle}
+          clicker={clicker}
+          essence={essence}
+          timekeeper={timekeeper}
+          refreshRequestTimestamp={refreshRequestTimestamp}/>
+
+        {/* <MeasuresTile
           menuStage={menuStage}
           style={measureListStyle}
           clicker={clicker}
           essence={essence}
           addPartialSeries={addPartialSeries}
-        />
+        /> */}
       </div>
     </div>;
   }
