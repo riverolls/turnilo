@@ -14,4 +14,5 @@
  * limitations under the License.
  */
 
+export const DEFAULT_LIMIT = 10;
 export const DEFAULT_LIMITS = [5, 10, 25, 30];

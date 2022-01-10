@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+import { DEFAULT_LIMIT } from "../../limit/limit"
 import { NORMAL_COLORS } from "../../models/colors/colors";
 import { Dimension } from "../../models/dimension/dimension";
 import { SeriesList } from "../../models/series-list/series-list";
@@ -45,18 +45,20 @@ export function adjustContinuousTimeSplit(split: Split): Split {
 export function adjustLimit({ kind, limits }: Dimension) {
   const isTimeSplit = kind === "time";
   const availableLimits = isTimeSplit ? [...limits, null] : limits;
+
   return adjustFiniteLimit(availableLimits);
 }
 
 export function adjustFiniteLimit(availableLimits: number[], defaultLimit = availableLimits[0]) {
-  
   return function(split: Split): Split {
     const { limit } = split;
-    console.log('limit', limit)
     // return availableLimits.indexOf(limit) === -1
     //   ? split.changeLimit(defaultLimit)
     //   : split;
-    return split
+    
+    return !split.limit
+      ? split.changeLimit(DEFAULT_LIMIT)
+      : split;
   };
 }
 

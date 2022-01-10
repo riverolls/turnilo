@@ -66,7 +66,8 @@ export function initialPosition(height: number, dataCube: ClientDataCube) {
   const ratio = dimensionsCount / (measuresCount + dimensionsCount);
 
   const { minDividerPosition, maxDividerPosition } = dividerConstraints(height);
-  return clamp(height * ratio, minDividerPosition, maxDividerPosition);
+  return height / 2;
+  // return clamp(height * ratio, minDividerPosition, maxDividerPosition);
 }
 
 export class DimensionMeasurePanel extends React.Component<DimensionMeasurePanelProps, DimensionMeasurePanelState> {
