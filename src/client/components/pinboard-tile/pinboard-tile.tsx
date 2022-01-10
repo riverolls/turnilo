@@ -231,7 +231,8 @@ export class PinboardTile extends React.Component<PinboardTileProps, PinboardTil
     const { datasetLoad, showSearch, searchText } = this.state;
 
     return <SearchableTile
-      style={{...tileStyles(datasetLoad), minHeight: '200px'}}
+      // style={{...tileStyles(datasetLoad)}}
+      style={{ width: '100%'}}
       title={dimension.title}
       toggleChangeFn={this.toggleSearch}
       onDragStart={this.onDragStart}
