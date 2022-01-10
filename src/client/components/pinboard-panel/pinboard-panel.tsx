@@ -97,10 +97,10 @@ export class PinboardPanel extends React.Component<PinboardPanelProps, PinboardP
     return <div
       className="pinboard-panel"
       onDragEnter={this.dragEnter}
-      style={{...style, padding: 0, background: '#fff', overflowY: 'auto'}}>
+      style={{...style, padding: 0, background: '#fff', overflow: 'auto'}}>
       <Legend.Target />
       <PinboardTiles
-        style={{...style, display: 'contents'}}
+        style={{display: 'contents', overflow: 'auto'}}
         hidePlaceholder={dragOver}
         essence={essence}
         clicker={clicker}
