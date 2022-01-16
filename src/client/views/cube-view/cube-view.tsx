@@ -42,6 +42,8 @@ import { Binary, Ternary } from "../../../common/utils/functional/functional";
 import { Fn } from "../../../common/utils/general/general";
 import { maxTimeQuery } from "../../../common/utils/query/max-time-query";
 import { datesEqual } from "../../../common/utils/time/time";
+import { getHashSegments, urlHashConverter } from "../../../common/utils/url-hash-converter/url-hash-converter";
+import { definitionConverters, definitionUrlEncoders } from "../../../common/view-definitions";
 import { DimensionMeasurePanel } from "../../components/dimension-measure-panel/dimension-measure-panel";
 import { GlobalEventListener } from "../../components/global-event-listener/global-event-listener";
 import { PinboardPanel } from "../../components/pinboard-panel/pinboard-panel";
@@ -232,6 +234,31 @@ export class CubeView extends React.Component<CubeViewProps, CubeViewState> {
       timekeeper: initTimekeeper || Timekeeper.EMPTY
     });
     this.updateEssenceFromHashOrDataCube(hash, dataCube);
+    let paramKeys: string[] = [];
+    const queryParams = new URLSearchParams(window.location.search);
+    queryParams.forEach(function (value, key, searchParams) {
+      if (value === "") { return; };
+      paramKeys.push(key);
+    });
+    if (paramKeys.length > 0) {
+      const { version, encodedModel, visualization } = getHashSegments(hash);
+      const urlEncoder = definitionUrlEncoders[version];
+      const definitionConverter = definitionConverters[version];
+      let definition: any = urlEncoder.decodeUrlHash(encodedModel, visualization);
+      let newFilters = [];
+      for (let filter of definition.filters) {
+        if (filter.type === "time") {
+          newFilters.push(filter);
+        };
+      };
+      for (let paramKey of paramKeys) {
+        newFilters.push({ type: 'string', ref: paramKey, action: 'in', values: [queryParams.get(paramKey)], not: false });
+      };
+      definition.filters = newFilters;
+      const essence = definitionConverter.fromViewDefinition(definition, dataCube);
+      const newHash = `#${dataCube.name}/${urlHashConverter.toHash(essence, version)}`;
+      window.location.href = window.location.origin + '/' + newHash;
+    };
   }
 
   componentDidMount() {
