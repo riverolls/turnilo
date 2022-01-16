@@ -21,7 +21,7 @@ import { findDimensionByName } from "../../../common/models/dimension/dimensions
 import { Essence } from "../../../common/models/essence/essence";
 import { SeriesSortOn, SortOn } from "../../../common/models/sort-on/sort-on";
 import { Timekeeper } from "../../../common/models/timekeeper/timekeeper";
-import { mapTruthy } from "../../../common/utils/functional/functional";
+import { cons, mapTruthy } from "../../../common/utils/functional/functional";
 import { STRINGS } from "../../config/constants";
 import { PinboardMeasureTile } from "../pinboard-measure-tile/pinboard-measure-tile";
 import { PinboardTile } from "../pinboard-tile/pinboard-tile";
@@ -33,6 +33,7 @@ interface PinboardTilesProps {
   clicker: Clicker;
   timekeeper: Timekeeper;
   refreshRequestTimestamp: number;
+  style?: React.CSSProperties;
 }
 
 function pinnedSortOn(essence: Essence): SortOn | null {
@@ -46,34 +47,34 @@ function pinnedDimensions(essence: Essence): Dimension[] {
 }
 
 export const PinboardTiles: React.SFC<PinboardTilesProps> = props => {
-  const { essence, timekeeper, clicker, hidePlaceholder, refreshRequestTimestamp } = props;
+  const { essence, timekeeper, clicker, hidePlaceholder, refreshRequestTimestamp, style } = props;
   const tileDimensions = pinnedDimensions(essence);
   const sortOn = pinnedSortOn(essence);
 
   const showPlaceholder = !hidePlaceholder && !tileDimensions.length;
   return <React.Fragment>
-    <PinboardMeasureTile
-      essence={essence}
-      title={STRINGS.pinboard}
-      sortOn={sortOn}
-      onSelect={sortOn => {
-        const series = essence.series.getSeriesWithKey(sortOn.key);
-        clicker.changePinnedSortSeries(series);
-      }}
-    />
-
-    {sortOn && tileDimensions.map(dimension => <PinboardTile
-      key={dimension.name}
-      essence={essence}
-      clicker={clicker}
-      dimension={dimension}
-      timekeeper={timekeeper}
-      refreshRequestTimestamp={refreshRequestTimestamp}
-      sortOn={sortOn} />)}
-
-    {showPlaceholder && <div className="placeholder">
-      <SvgIcon svg={require("../../icons/preview-pin.svg")} />
-      <div className="placeholder-message">{STRINGS.pinboardPlaceholder}</div>
-    </div>}
+    <div style={style}>
+      <PinboardMeasureTile
+        essence={essence}
+        title={STRINGS.pinboard}
+        sortOn={sortOn}
+        onSelect={sortOn => {
+          const series = essence.series.getSeriesWithKey(sortOn.key);
+          clicker.changePinnedSortSeries(series);
+        }}
+      />
+      {sortOn && tileDimensions.map(dimension => <PinboardTile
+        key={dimension.name}
+        essence={essence}
+        clicker={clicker}
+        dimension={dimension}
+        timekeeper={timekeeper}
+        refreshRequestTimestamp={refreshRequestTimestamp}
+        sortOn={sortOn} />)}
+      {showPlaceholder && <div className="placeholder">
+        <SvgIcon svg={require("../../icons/preview-pin.svg")} />
+        <div className="placeholder-message">{STRINGS.pinboardPlaceholder}</div>
+      </div>}
+    </div>
   </React.Fragment>;
 };

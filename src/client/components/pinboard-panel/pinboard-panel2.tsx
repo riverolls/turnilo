@@ -22,9 +22,14 @@ import { Essence } from "../../../common/models/essence/essence";
 import { Timekeeper } from "../../../common/models/timekeeper/timekeeper";
 import { DragManager } from "../../utils/drag-manager/drag-manager";
 import { createTeleporter } from "../../utils/teleporter/teleporter";
+import { Series } from "../../../common/models/series/series";
+import { Stage } from "../../../common/models/stage/stage";
+import { Unary } from "../../../common/utils/functional/functional";
+
 import "./pinboard-panel.scss";
 import { PinboardTiles } from "./pinboard-tiles";
 
+import { MeasuresTile } from "../measures-tile/measures-tile";
 
 export interface PinboardPanelProps {
   clicker: Clicker;
@@ -32,7 +37,10 @@ export interface PinboardPanelProps {
   timekeeper: Timekeeper;
   refreshRequestTimestamp: number;
   style?: React.CSSProperties;
+  menuStage: Stage;
+  addPartialSeries: Unary<Series, void>;
 }
+
 
 export interface PinboardPanelState {
   dragOver?: boolean;
@@ -91,16 +99,27 @@ export class PinboardPanel extends React.Component<PinboardPanelProps, PinboardP
   };
 
   render() {
-    const { clicker, essence, timekeeper, style, refreshRequestTimestamp } = this.props;
+    const { clicker, essence, timekeeper, style, refreshRequestTimestamp, menuStage, addPartialSeries } = this.props;
     const { dragOver } = this.state;
 
+    const measureListStyle: React.CSSProperties = {
+      height: '100%'
+    };
     return <div
-      className="pinboard-panel"
+      className="pinboard-panel2"
       onDragEnter={this.dragEnter}
-      style={{...style, padding: 0, background: '#fff', overflow: 'auto'}}>
+      style={style}>
       <Legend.Target />
-      <PinboardTiles
-        style={{display: 'contents', overflow: 'auto'}}
+
+      <MeasuresTile
+          menuStage={menuStage}
+          style={measureListStyle}
+          clicker={clicker}
+          essence={essence}
+          addPartialSeries={addPartialSeries}
+        />
+
+      {/* <PinboardTiles
         hidePlaceholder={dragOver}
         essence={essence}
         clicker={clicker}
@@ -113,7 +132,7 @@ export class PinboardPanel extends React.Component<PinboardPanelProps, PinboardP
         onDragLeave={this.dragLeave}
         onDragExit={this.dragLeave}
         onDrop={this.drop}
-      />}
+      />} */}
     </div>;
   }
 }

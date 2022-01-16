@@ -18,7 +18,7 @@
 import * as React from "react";
 import { SortOn } from "../../../common/models/sort-on/sort-on";
 import { Sort, SortDirection } from "../../../common/models/sort/sort";
-import { Unary } from "../../../common/utils/functional/functional";
+import { cons, Unary } from "../../../common/utils/functional/functional";
 import { STRINGS } from "../../config/constants";
 import { Dropdown } from "../dropdown/dropdown";
 import { SvgIcon } from "../svg-icon/svg-icon";
@@ -33,6 +33,7 @@ export interface SortDropdownProps {
 export const SortDropdown: React.SFC<SortDropdownProps> = ({ direction, options, selected, onChange }) => {
 
   function toggleDirection() {
+    console.log(10101)
     const newDirection = direction === SortDirection.descending ? SortDirection.ascending : SortDirection.descending;
     onChange(selected.toSort(newDirection));
   }

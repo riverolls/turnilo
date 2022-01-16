@@ -46,7 +46,7 @@ import { getHashSegments, urlHashConverter } from "../../../common/utils/url-has
 import { definitionConverters, definitionUrlEncoders } from "../../../common/view-definitions";
 import { DimensionMeasurePanel } from "../../components/dimension-measure-panel/dimension-measure-panel";
 import { GlobalEventListener } from "../../components/global-event-listener/global-event-listener";
-import { PinboardPanel } from "../../components/pinboard-panel/pinboard-panel";
+import { PinboardPanel } from "../../components/pinboard-panel/pinboard-panel2";
 import { Direction, DragHandle, ResizeHandle } from "../../components/resize-handle/resize-handle";
 import { SideDrawer } from "../../components/side-drawer/side-drawer";
 import { SvgIcon } from "../../components/svg-icon/svg-icon";
@@ -604,6 +604,8 @@ export class CubeView extends React.Component<CubeViewProps, CubeViewState> {
                 clicker={clicker}
                 essence={essence}
                 menuStage={menuStage}
+                timekeeper={timekeeper}
+                refreshRequestTimestamp={lastRefreshRequestTimestamp}
                 addPartialFilter={dimension =>
                   addFilter(dimension, DragPosition.insertAt(essence.filter.length()))}
                 addPartialSeries={series =>
@@ -659,12 +661,16 @@ export class CubeView extends React.Component<CubeViewProps, CubeViewState> {
               >
                 <DragHandle/>
               </ResizeHandle>}
+
               {!layout.pinboard.hidden && <PinboardPanel
                 style={styles.pinboardPanel}
                 clicker={clicker}
                 essence={essence}
                 timekeeper={timekeeper}
-                refreshRequestTimestamp={lastRefreshRequestTimestamp}/>}
+                refreshRequestTimestamp={lastRefreshRequestTimestamp}
+                menuStage={menuStage}
+                addPartialSeries={series =>
+                  addSeries(series, DragPosition.insertAt(essence.series.count()))}/>}
             </React.Fragment>}</PartialTilesProvider>
           </div>
           {this.renderDruidQueryModal()}

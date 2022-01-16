@@ -39,7 +39,7 @@ export interface SearchableTileProps {
   showSearch: boolean;
   icons: TileHeaderIcon[];
   className?: string;
-  style: Record<string, any>;
+  style?: Record<string, any>;
   title: string;
   onDragStart?: (event: React.DragEvent<HTMLElement>) => void;
   actions?: TileAction[];
