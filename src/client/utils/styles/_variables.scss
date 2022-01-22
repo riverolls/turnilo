@@ -24,13 +24,13 @@ $gray: #ccc;
 
 // Theme Colors
 
-$brand: hsl(202, 100%, 50%);
+$brand: rgb(0, 138, 220);
 $background-base: #e1e1e1;
 $error: hsla(0, 72%, 59%, 1.00);
 $hover: lighten($brand, 40%);
-$text-standard: hsl(0, 0%, 13%);
-$item-dimension: hsl(202, 100%, 80%);
-$item-measure: hsl(202, 60%, 77%);
+$text-standard: rgb(1, 38, 101); // hsl(0, 0%, 13%);
+$item-dimension: rgba(0, 138, 220, 0.22); //hsl(202, 100%, 80%);
+$item-measure: #f6e58d; //hsl(202, 60%, 77%);
 
 $theme-colors: (
   background-base: $background-base,
@@ -69,10 +69,10 @@ $theme-colors: (
   hover: $hover,
   icon-hover: #888,
   icon-light: #bbb,
-  item-dimension-hover: darken($item-dimension, 6%),
+  item-dimension-hover: rgba($item-dimension, 0.3),
   item-dimension-text: $text-standard,
   item-dimension: $item-dimension,
-  item-measure-hover: darken($item-measure, 6%),
+  item-measure-hover: '#f9ca24', //darken($item-measure, 6%),
   item-measure-text: $text-standard,
   item-measure: $item-measure,
   main-time-area: rgba($brand, 0.14),

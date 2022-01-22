@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import e from "express";
 import * as React from "react";
 import { TooltipWithinStageProps } from "./tooltip-within-stage";
 
@@ -23,26 +24,34 @@ export type Position = Pick<React.CSSProperties, "left" | "top">;
 
 export function calculatePosition(props: TooltipWithinStageProps, rect?: Rect): Position {
   const { top: initialTop, left: initialLeft, stage, margin = 10 } = props;
+  console.log('stage', stage)
+  console.log('rect', rect)
   if (!rect) {
-    const top = initialTop + margin;
-    const left = initialLeft + margin;
+    let top = initialTop + margin;
+    let left = initialLeft + margin;
+
     return { top, left };
   }
 
   const stageBottom = stage.y + stage.height;
   const stageRight = stage.x + stage.width;
 
-  const top = rect.bottom > stageBottom
-    ? initialTop - margin - rect.height
+  let top = rect.bottom > stageBottom
+    ? initialTop - margin - rect.height + stage.y
     : rect.top < stage.y
       ? initialTop + rect.height
       : initialTop + margin;
 
-  const left = rect.right > stageRight
+  let left = rect.right > stageRight
     ? initialLeft - margin - rect.width
     : rect.left < stage.x
       ? initialLeft + rect.width
       : initialLeft + margin;
 
+  // @ts-ignore
+  if(typeof(stage.index) !== 'undefined') top = top <= -(stage.index * 200) ? -(stage.index * 200) : top;
+  
+  console.log('top', top)
+    
   return { top, left };
 }

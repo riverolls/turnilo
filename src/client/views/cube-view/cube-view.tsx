@@ -175,6 +175,7 @@ export class CubeView extends React.Component<CubeViewProps, CubeViewState> {
         this.setState({ essence: essence.changeSeriesList(seriesList) });
       },
       addSeries: (series: Series) => {
+        
         const { essence } = this.state;
         this.setState({ essence: essence.addSeries(series) });
       },

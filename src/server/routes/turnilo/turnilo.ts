@@ -34,7 +34,7 @@ export function turniloRouter(appSettings: AppSettings, version: string) {
         timekeeper: SETTINGS_MANAGER.getTimekeeper()
       }));
     } catch (e) {
-      res.status(400).send({ error: "Couldn't load Turnilo Application" });
+      res.status(400).send({ error: "Couldn't load Riveroll Crystal Ball Application" });
     }
   });
 

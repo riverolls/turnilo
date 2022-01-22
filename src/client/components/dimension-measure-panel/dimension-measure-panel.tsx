@@ -66,7 +66,7 @@ export function initialPosition(height: number, dataCube: ClientDataCube) {
   const ratio = dimensionsCount / (measuresCount + dimensionsCount);
 
   const { minDividerPosition, maxDividerPosition } = dividerConstraints(height);
-  return height / 2;
+  return height / 1.8;
   // return clamp(height * ratio, minDividerPosition, maxDividerPosition);
 }
 
