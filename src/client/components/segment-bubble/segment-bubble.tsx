@@ -37,10 +37,10 @@ export const SegmentBubble: React.SFC<SegmentBubbleProps> = (props: SegmentBubbl
     newTop = height > top ? height : top
   }
 
-  return <BodyPortal left={left} top={newTop + OFFSET_V} fullSize={true}>
+  return <BodyPortal left={left} top={newTop} fullSize={true}>
     <div className="segment-bubble">
       <SegmentBubbleContent title={title} content={content} />
-      <Shpitz direction="up" />
+      {/* <Shpitz direction="up" /> */}
     </div>
   </BodyPortal>;
 };

@@ -24,8 +24,6 @@ export type Position = Pick<React.CSSProperties, "left" | "top">;
 
 export function calculatePosition(props: TooltipWithinStageProps, rect?: Rect): Position {
   const { top: initialTop, left: initialLeft, stage, margin = 10 } = props;
-  console.log('stage', stage)
-  console.log('rect', rect)
   if (!rect) {
     let top = initialTop + margin;
     let left = initialLeft + margin;
@@ -51,7 +49,5 @@ export function calculatePosition(props: TooltipWithinStageProps, rect?: Rect): 
   // @ts-ignore
   if(typeof(stage.index) !== 'undefined') top = top <= -(stage.index * 200) ? -(stage.index * 200) : top;
   
-  console.log('top', top)
-    
   return { top, left };
 }
