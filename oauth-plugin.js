@@ -7,12 +7,7 @@ function isRestrictedPath(path) {
 
 
 exports.plugin = function (app, pluginConfig, serverConfig, appConfig, logger) {
-    app.use(async (req, res, next) => {
-        // If path is not restricted, pass control to next handler. We restrict only `/settings` and `/plywood` endpoints
-        if (!isRestrictedPath(req.path)) {
-            next();
-            return;
-        }
+    app.use(['/sources', '/plywood', '/plyql'], async (req, res, next) => {
         // Plugins have access to appSettings, so we get oauth settings from there
         const oauth = appConfig.oauth;
         // We read header with token. We can use tokenHeaderName to pick correct one.
