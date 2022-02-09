@@ -35,7 +35,7 @@ function estimate(key: string, data: any, day_num: int) {
     let res = regexp.exec(item);
     if (res) {
       let item_day = parseInt(res[1]);
-      if (item_day < day_num && data[item] > 0) {
+      if (item_day > 0 && item_day < day_num && data[item] > 0) {
         samples.push([item_day, data[item]]);
       }
     }
@@ -52,6 +52,11 @@ function process_data(data: any) {
     let res = regexp.exec(key);
     if (res) {
       estimate('ret', data, parseInt(res[1]));
+    }
+    let regexp2 = new RegExp(/^estimated_roi(\d\d?)$/);
+    let res2 = regexp2.exec(key);
+    if (res2) {
+      estimate('roi', data, parseInt(res2[1]));
     }
   }
 }
