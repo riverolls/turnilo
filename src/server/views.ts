@@ -28,7 +28,7 @@ export interface ViewOptions {
 function favicon(options: ViewOptions): string {
   const { version, title } = options;
   return `
-<link rel="apple-touch-icon" sizes="180x180" href="favicon/apple-touch-icon.png?v=${version}">
+<link rel="apple-touch-icon" sizes="128x128" href="favicon/apple-touch-icon.png?v=${version}">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon/favicon-32x32.png?v=${version}">
 <link rel="icon" type="image/png" sizes="16x16" href="favicon/favicon-16x16.png?v=${version}">
 <link rel="manifest" href="favicon/site.webmanifest?v=${version}">

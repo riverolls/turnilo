@@ -41,7 +41,7 @@ export const MeasureValue: React.SFC<MeasureValueProps> = props => {
     width={cellWidth}
     value={series.formatValue(datum)}
   >
-    {barScale && <MeasureBackground highlight={highlight} width={barScale(currentValue)} />}
+    {barScale && currentValue >= 0 && <MeasureBackground highlight={highlight} width={barScale(currentValue)} />}
   </MeasureCell>;
 
   if (!showPrevious) {
@@ -56,7 +56,7 @@ export const MeasureValue: React.SFC<MeasureValueProps> = props => {
       key={series.reactKey(SeriesDerivation.PREVIOUS)}
       width={cellWidth}
       value={series.formatValue(datum, SeriesDerivation.PREVIOUS)}>
-      {barScale && <MeasureBackground highlight={highlight} width={barScale(previousValue)} />}
+      {barScale && currentValue >= 0 && <MeasureBackground highlight={highlight} width={barScale(previousValue)} />}
     </MeasureCell>
     <MeasureCell
       width={cellWidth}

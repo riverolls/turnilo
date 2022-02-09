@@ -26,6 +26,6 @@ export const MeasureCell: React.SFC<MeasureCellProps> = props => {
   const { width, value, children } = props;
   return <div className="measure-cell" style={{ width }}>
     {children}
-    <div className="measure-label">{value}</div>
+    <div className={`measure-label${value.toString().indexOf('-') !== -1 ? ' text-red' : ''}`}>{value}</div>
   </div>;
 };

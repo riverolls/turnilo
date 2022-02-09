@@ -18,7 +18,7 @@ import { Stage } from "../../../../../common/models/stage/stage";
 import { ScrollerLayout } from "../../../../components/scroller/scroller";
 import { calculateSegmentStage } from "./calculate-segment-stage";
 
-const Y_AXIS_WIDTH = 60;
+const Y_AXIS_WIDTH = 100;
 const X_AXIS_HEIGHT = 40;
 const LEFT_PADDING = 5;
 const MARGINS: Margins = {

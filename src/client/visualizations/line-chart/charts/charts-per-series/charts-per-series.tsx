@@ -46,7 +46,8 @@ export const ChartsPerSeries: React.SFC<ChartsPerSeriesProps> = props => {
     {hasNominalSplit(essence) && <LegendSpot>
       <SplitLegend dataset={dataset} essence={essence}/>
     </LegendSpot>}
-    {concreteSeries.map(series => {
+    {concreteSeries.map((series, index) => {
+      const chartsIndex: any = {index: index};
       const key = series.reactKey();
       return <SeriesChart
           interactions={interactions}
@@ -56,7 +57,7 @@ export const ChartsPerSeries: React.SFC<ChartsPerSeriesProps> = props => {
           essence={essence}
           series={series}
           chartStage={chartStage}
-          visualisationStage={stage}
+          visualisationStage={{...stage, ...chartsIndex}}
           xScale={xScale}
           xTicks={xTicks} />;
       }

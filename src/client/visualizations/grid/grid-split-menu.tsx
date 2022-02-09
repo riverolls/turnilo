@@ -113,7 +113,6 @@ class GridControlMenu extends React.Component<SplitMenuProps, GridControlMenuPro
 
   saveLimit = (limit: number) => {
     this.setState({ limit });
-    console.log('limit', limit)
   }
 
   saveSplit = () => {
