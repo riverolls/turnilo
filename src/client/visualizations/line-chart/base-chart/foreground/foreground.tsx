@@ -39,7 +39,6 @@ interface ForegroundProps {
 
 export const Foreground: React.SFC<ForegroundProps> = props => {
   const { stage, interaction, container, xScale, timezone, visualisationStage, hoverContent, dropHighlight, acceptHighlight } = props;
-
   return <React.Fragment>
     <SelectionOverlay
       stage={stage}

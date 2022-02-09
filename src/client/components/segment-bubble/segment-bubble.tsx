@@ -27,14 +27,20 @@ const OFFSET_V = -10;
 export interface SegmentBubbleProps extends SegmentBubbleContentProps {
   left: number;
   top: number;
+  height?: number;
 }
 
 export const SegmentBubble: React.SFC<SegmentBubbleProps> = (props: SegmentBubbleProps) => {
-  const { left, top, title, content } = props;
-  return <BodyPortal left={left} top={top + OFFSET_V}>
+  const { left, top, height, title, content } = props;
+  let newTop = top;
+  if(height) {
+    newTop = height > top ? height : top
+  }
+
+  return <BodyPortal left={left} top={newTop} fullSize={true}>
     <div className="segment-bubble">
       <SegmentBubbleContent title={title} content={content} />
-      <Shpitz direction="up" />
+      {/* <Shpitz direction="up" /> */}
     </div>
   </BodyPortal>;
 };

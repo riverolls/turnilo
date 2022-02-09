@@ -30,6 +30,7 @@ export interface StageValue {
   y: number;
   width: number;
   height: number;
+  index?: number
 }
 
 export interface StageJS {
@@ -37,6 +38,7 @@ export interface StageJS {
   y: number;
   width: number;
   height: number;
+  index?: number
 }
 
 var check: Class<StageValue, StageJS>;

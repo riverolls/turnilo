@@ -28,7 +28,7 @@ import pickXAxisTicks from "./utils/pick-x-axis-ticks";
 import { calculateXRange, createContinuousScale } from "./utils/x-scale";
 import { XAxis } from "./x-axis/x-axis";
 
-const Y_AXIS_WIDTH = 60;
+const Y_AXIS_WIDTH = 100;
 const X_AXIS_HEIGHT = 30;
 
 export function LineChartVisualization(props: VisualizationProps) {
@@ -54,6 +54,14 @@ class LineChart extends React.Component<ChartProps> {
     const ticks = pickXAxisTicks(scale.domain(), essence.timezone);
 
     const maxHeight = stage.height - X_AXIS_HEIGHT;
+
+    // this.chartsRef.current.onmouseover = () => {
+    //   console.log(9090)
+    // }
+
+    // this.chartsRef.current.on('mouseover', {seriesIndex: 1, name: 'xx'}, function (params) {
+    //     console.log(params);
+    // });
 
     return <InteractionController
       dataset={data}

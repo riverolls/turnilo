@@ -52,7 +52,7 @@ export interface ScrollerProps {
   onMouseLeave?: () => void;
   onScroll?: (scrollTop: number, scrollLeft: number) => void;
   onViewportUpdate?: (stage: Stage) => void;
-
+  
   // "Transcluded" elements
   topGutter?: JSX.Element | JSX.Element[];
   rightGutter?: JSX.Element | JSX.Element[];

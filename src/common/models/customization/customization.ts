@@ -23,7 +23,7 @@ import { ExternalView, ExternalViewValue } from "../external-view/external-view"
 import { fromConfig as localeFromConfig, Locale, LocaleJS, serialize as localeSerialize } from "../locale/locale";
 import { fromConfig as urlShortenerFromConfig, UrlShortener, UrlShortenerDef } from "../url-shortener/url-shortener";
 
-export const DEFAULT_TITLE = "Turnilo (%v)";
+export const DEFAULT_TITLE = "Riveroll Crystal Ball (%v)";
 
 export const DEFAULT_TIMEZONES: Timezone[] = [
   new Timezone("America/Juneau"), // -9.0

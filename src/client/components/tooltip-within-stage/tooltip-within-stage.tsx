@@ -42,8 +42,11 @@ export class TooltipWithinStage extends React.Component<TooltipWithinStageProps,
     });
   }
 
+  
+
   render() {
     const { children } = this.props;
+    console.log('this.props', this.props);
     return <div
       className="tooltip-within-stage"
       style={calculatePosition(this.props, this.state.rect)}

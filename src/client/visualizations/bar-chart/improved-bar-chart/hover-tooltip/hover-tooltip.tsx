@@ -50,9 +50,12 @@ export const HoverTooltip: React.SFC<HoverTooltipProps> = props => {
   const y = yScale(series.selectValue(datum));
   const xValue = getX(datum);
   const x = xScale.calculate(xValue) + (xScale.rangeBand() / 2);
+  //@ts-ignore
+  let height = datum.SPLIT && datum.SPLIT.data && datum.SPLIT.data.length * 18 + 32;
   return <SegmentBubble
     top={top + y}
     left={left + x}
+    height={height || 0}
     title={formatValue(xValue, model.timezone)}
     content={<Content model={model} datum={datum} series={series}/>} />;
 };

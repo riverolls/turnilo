@@ -59,7 +59,7 @@ import { BarCoordinates } from "./bar-coordinates";
 import { BarChart as ImprovedBarChart } from "./improved-bar-chart/bar-chart";
 
 const X_AXIS_HEIGHT = 84;
-const Y_AXIS_WIDTH = 60;
+const Y_AXIS_WIDTH = 100;
 const CHART_TOP_PADDING = 10;
 const CHART_BOTTOM_PADDING = 0;
 const MIN_CHART_HEIGHT = 200;
@@ -494,7 +494,6 @@ class BarChart extends React.Component<ChartProps, BarChartState> {
 
     const dimension = findDimensionByName(essence.dataCube.dimensions, essence.splits.splits.get(splitIndex).reference);
     const splitLength = essence.splits.length();
-
     data.forEach((d, i) => {
       let segmentValue = d[dimension.name];
       let segmentValueStr = formatValue(segmentValue, timezone);
@@ -687,7 +686,6 @@ class BarChart extends React.Component<ChartProps, BarChartState> {
   ): { yAxis: JSX.Element, chart: JSX.Element, highlight: JSX.Element } {
     const { essence } = this.props;
     const mySplitDataset = dataset.data[0][SPLIT] as Dataset;
-
     const measureLabel = <VisMeasureLabel
       series={series}
       datum={dataset.data[0]}
