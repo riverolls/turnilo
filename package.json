@@ -95,6 +95,7 @@
     "react-dom": "16.6.3",
     "react-syntax-highlighter": "7.0.2",
     "react-transition-group": "2.2.1",
+    "regression": "2.0.1",
     "request": "2.87.0",
     "request-promise-native": "1.0.5"
   },
@@ -131,6 +132,7 @@
     "@types/react-dom": "16.0.11",
     "@types/react-syntax-highlighter": "0.0.5",
     "@types/react-transition-group": "2.0.7",
+    "@types/regression": "2.0.2",
     "@types/request-promise-native": "1.0.14",
     "@types/rewire": "2.5.28",
     "@types/sinon": "4.1.4",
