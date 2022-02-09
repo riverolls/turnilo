@@ -24,6 +24,46 @@ import { getDataCube } from "../../../common/models/sources/sources";
 import { checkAccess } from "../../utils/datacube-guard/datacube-guard";
 import { loadQueryDecorator } from "../../utils/query-decorator-loader/load-query-decorator";
 import { SettingsManager } from "../../utils/settings-manager/settings-manager";
+import { power } from "regression"
+
+function estimate(key: string, data: any, day_num: int) {
+  let samples: [number, number][] = [];
+  let regex_str = `^${key}(\\d\\d?)$`;
+  let regexp = new RegExp(regex_str);
+
+  for (let item in data) {
+    let res = regexp.exec(item);
+    if (res) {
+      let item_day = parseInt(res[1]);
+      if (item_day < day_num && data[item] > 0) {
+        samples.push([item_day, data[item]]);
+      }
+    }
+  }
+  if (samples.length > 1) {
+    let result = power(samples, { precision: 5 });
+    data[`estimated_${key}${day_num}`] = result.predict(day_num)[1];
+  }
+}
+
+function process_data(data: any) {
+  for (let key in data) {
+    let regexp = new RegExp(/^estimated_ret(\d\d?)$/);
+    let res = regexp.exec(key);
+    if (res) {
+      estimate('ret', data, parseInt(res[1]));
+    }
+  }
+}
+
+function process_data_array(data_arr: any) {
+  for (let item of data_arr) {
+    process_data(item);
+    if ('SPLIT' in item) {
+      process_data_array(item.SPLIT.data);
+    }
+  }
+}
 
 export function plywoodRouter(settingsManager: Pick<SettingsManager, "anchorPath" | "getSources">) {
 
@@ -92,15 +132,16 @@ export function plywoodRouter(settingsManager: Pick<SettingsManager, "anchorPath
     const decorator = loadQueryDecorator(myDataCube, settingsManager.anchorPath, LOGGER);
     const expression = decorator(parsedExpression, req);
     try {
-      const data = await myDataCube.executor(expression, { maxQueries, timezone: queryTimezone });
+      const data: any = await myDataCube.executor(expression, { maxQueries, timezone: queryTimezone });
       const reply = {
         result: Dataset.isDataset(data) ? data.toJS() : data
       };
+      process_data_array(reply.result.data);
       res.json(reply);
     } catch (error) {
       console.log("error:", error.message);
       if (error.hasOwnProperty("stack")) {
-        console.log((<any> error).stack);
+        console.log((<any>error).stack);
       }
       res.status(500).send({
         error: "could not compute",
