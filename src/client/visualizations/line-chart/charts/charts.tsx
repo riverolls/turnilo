@@ -37,6 +37,11 @@ interface ChartsProps {
 
 export const Charts: React.SFC<ChartsProps> = props => {
   const { essence } = props;
+  const tooltip = {
+    transitionDuration: 0
+  }
+  
+  // Object.assign(props, {...tooltip})
   const { groupSeries } = essence.visualizationSettings as ImmutableRecord<LineChartSettings>;
 
   return groupSeries

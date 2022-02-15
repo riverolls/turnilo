@@ -21,7 +21,7 @@ import { Essence } from "../../../../../common/models/essence/essence";
 import { defaultFormatter } from "../../../../../common/models/series/series-format";
 import { Stage } from "../../../../../common/models/stage/stage";
 import { Unary } from "../../../../../common/utils/functional/functional";
-import { selectSplitDataset } from "../../../../utils/dataset/selectors/selectors";
+import { selectFirstSplitDataset, selectSplitDataset } from "../../../../utils/dataset/selectors/selectors";
 import { BaseChart } from "../../base-chart/base-chart";
 import { ColoredSeriesChartLine } from "../../chart-line/colored-series-chart-line";
 import { SingletonSeriesChartLine } from "../../chart-line/singleton-series-chart-line";
@@ -50,6 +50,7 @@ export const SplitChart: React.SFC<SplitChartProps> = props => {
   const { chartId, interactions, visualisationStage, chartStage, essence, xScale, xTicks, selectDatum, dataset } = props;
   const { interaction } = interactions;
   const splitDatum = selectDatum(dataset);
+  const continuousSplitDataset = selectFirstSplitDataset(dataset);
   const splitDataset = selectSplitDataset(splitDatum);
 
   const series = essence.getConcreteSeries();
@@ -76,7 +77,8 @@ export const SplitChart: React.SFC<SplitChartProps> = props => {
       xTicks={xTicks}
       chartStage={chartStage}
       formatter={firstSeries.formatter()}
-      yDomain={domain} visualisationStage={visualisationStage}>
+      yDomain={domain} visualisationStage={visualisationStage}
+      singleSeries={true}>
       {({ yScale, lineStage }) => {
         return <SingletonSeriesChartLine
           xScale={xScale}
@@ -101,7 +103,8 @@ export const SplitChart: React.SFC<SplitChartProps> = props => {
     xTicks={xTicks}
     chartStage={chartStage}
     formatter={defaultFormatter}
-    yDomain={domain}>
+    yDomain={domain}
+    singleSeries={false}>
     {({ yScale, lineStage }) => <React.Fragment>
       {series.toArray().map((series, index) => {
         const color = NORMAL_COLORS[index];

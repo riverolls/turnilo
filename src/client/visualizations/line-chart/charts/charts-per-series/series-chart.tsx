@@ -80,7 +80,8 @@ export const SeriesChart: React.SFC<SeriesChartProps> = props => {
       xTicks={xTicks}
       chartStage={chartStage}
       formatter={series.formatter()}
-      yDomain={domain}>
+      yDomain={domain}
+      singleSeries={false}>
       {({ yScale, lineStage }) => <React.Fragment>
         {continuousSplitDataset.data.map((datum, index) => {
           const splitKey = datum[nominalSplit.reference];
@@ -110,7 +111,8 @@ export const SeriesChart: React.SFC<SeriesChartProps> = props => {
     yDomain={domain}
     formatter={series.formatter()}
     xScale={xScale}
-    xTicks={xTicks}>
+    xTicks={xTicks}
+    singleSeries={true}>
     {({ yScale, lineStage }) => <SingletonSeriesChartLine
       xScale={xScale}
       yScale={yScale}

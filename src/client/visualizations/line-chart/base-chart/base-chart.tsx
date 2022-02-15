@@ -49,6 +49,7 @@ class BaseChartProps {
   formatter: Unary<number, string>;
   yDomain: [number, number];
   interactions: InteractionsProps;
+  singleSeries: boolean
 }
 
 const TEXT_SPACER = 36;
@@ -60,7 +61,7 @@ export class BaseChart extends React.Component<BaseChartProps> {
   private container = React.createRef<HTMLDivElement>();
 
   render() {
-    const { hoverContent, interactions, timezone, yDomain, visualisationStage, chartStage, chartId, children, label, formatter, xScale, xTicks } = this.props;
+    const { hoverContent, interactions, timezone, yDomain, visualisationStage, chartStage, chartId, children, label, formatter, xScale, xTicks, singleSeries } = this.props;
     const { interaction, dropHighlight, acceptHighlight, mouseLeave, dragStart, handleHover } = interactions;
 
     const [, xRange] = xScale.range();
@@ -68,7 +69,8 @@ export class BaseChart extends React.Component<BaseChartProps> {
     const axisStage = chartStage.within({ top: TEXT_SPACER, left: xRange });
 
     const yScale = getScale(yDomain, lineStage.height);
-    const hasInteraction = interaction && interaction.key === chartId;
+    const hasInteraction = interaction && (interaction.key === chartId || singleSeries);
+    // const hasHoverInteraction = interaction && (interaction.key === chartId || singleSeries);
 
     return <React.Fragment>
       <div className="line-base-chart" ref={this.container} style={chartStage.getWidthHeight()}>
