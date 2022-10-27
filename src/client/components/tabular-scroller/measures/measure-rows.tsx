@@ -45,7 +45,8 @@ export const MeasureRows: React.SFC<MeasureRowsProps> = props => {
     rowsData={data}
     renderRow={props => {
       const { index, top, datum, highlight, dimmed } = props;
-      const rowStyle: React.CSSProperties = { top, width: rowWidth };
+      const nest = datum.__nest;
+      const rowStyle: React.CSSProperties = { top, width: rowWidth, fontWeight: nest === 1 && 800 };
       const showBar = showBarPredicate(datum);
 
       return <MeasureRow

@@ -45,7 +45,7 @@ export const NestedSplits: React.SFC<NestedSplitsProps> = props => {
         const { index, top, datum, highlight, dimmed } = props;
         const nest = datum.__nest;
         const left = Math.max(0, nest - 1) * INDENT_WIDTH;
-        const segmentStyle = { left, width: segmentWidth - left, top };
+        const segmentStyle = { left, width: segmentWidth - left, top, fontWeight: nest === 1 && 800 };
 
         return <SplitValue
           key={`segment_${index}`}
