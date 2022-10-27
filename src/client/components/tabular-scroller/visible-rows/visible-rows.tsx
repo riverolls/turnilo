@@ -40,7 +40,7 @@ export const VisibleRows: React.SFC<VisibleRowsProps> = props => {
 
   const [start, end] = visibleRowsIndexRange;
   const visibleData = rowsData.slice(start, end);
-
+  
   return <React.Fragment>
     {visibleData.map((datum, i) => {
       const index = start + i;

@@ -38,6 +38,18 @@ import { getRowIndexForHighlight } from "../utils/get-row-index-for-highlight";
 
 const HIGHLIGHT_BUBBLE_V_OFFSET = -4;
 
+const hasChildFn = (data: PseudoDatum[], splits: any) => {
+  let newData = data.map(item=>{
+    return item.__nest === 1 ?
+    {
+      ...item,
+      childNum: data.filter(cItem=> cItem.__nest === 2 && cItem[splits.get(0).reference] == item[splits.get(0).reference]).length
+    } : item
+  })
+  
+  return newData
+}
+
 interface ScrolledTableProps {
   flatData: PseudoDatum[];
   essence: Essence;
@@ -95,11 +107,14 @@ export const ScrolledTable: React.SFC<ScrolledTableProps> = props => {
     left: segmentWidth
   };
 
+
   const highlightedRowIndex = getRowIndexForHighlight(essence, highlight, flatData);
   const showHighlight = highlightedRowIndex !== null && flatData;
   const maxSegmentWidth = availableWidth || SEGMENT_WIDTH;
   const lastSplitLevel = essence.splits.length();
-
+  
+  let newData = hasChildFn(flatData, essence.splits.splits)
+  
   return <React.Fragment>
     <ResizeHandle
       direction={Direction.LEFT}
@@ -126,13 +141,13 @@ export const ScrolledTable: React.SFC<ScrolledTableProps> = props => {
         visibleRowsIndexRange={visibleRowsRange}
         hoverRow={hoverRow}
         essence={essence}
-        data={flatData}
+        data={newData}
         segmentWidth={segmentWidth}/>
       }
 
       topLeftCorner={<SplitsHeader essence={essence} collapseRows={collapseRows}/>}
 
-      body={flatData &&
+      body={newData &&
       <MeasureRows
         hoverRow={hoverRow}
         showBarPredicate={datum => datum.__nest === lastSplitLevel}
@@ -140,7 +155,7 @@ export const ScrolledTable: React.SFC<ScrolledTableProps> = props => {
         essence={essence}
         highlightedRowIndex={highlightedRowIndex}
         scales={scales}
-        data={flatData}
+        data={newData}
         cellWidth={columnWidth}
         rowWidth={columnWidth * columnsCount}/>}
 

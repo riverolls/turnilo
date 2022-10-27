@@ -35,6 +35,7 @@ interface NestedSplitsProps {
 export const NestedSplits: React.SFC<NestedSplitsProps> = props => {
   const { essence, data, highlightedRowIndex, hoverRow, visibleRowsIndexRange, segmentWidth } = props;
 
+  
   return <div className="nested-splits-rows">
     <VisibleRows
       hoveredRowDatum={hoverRow}
@@ -45,8 +46,8 @@ export const NestedSplits: React.SFC<NestedSplitsProps> = props => {
         const { index, top, datum, highlight, dimmed } = props;
         const nest = datum.__nest;
         const left = Math.max(0, nest - 1) * INDENT_WIDTH;
-        const segmentStyle = { left, width: segmentWidth - left, top, fontWeight: nest === 1 && 800 };
-
+        const segmentStyle = { left, width: segmentWidth - left, top, fontWeight: nest === 1 && datum.childNum && 800 };
+        
         return <SplitValue
           key={`segment_${index}`}
           highlight={highlight}

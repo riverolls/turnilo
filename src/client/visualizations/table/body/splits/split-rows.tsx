@@ -31,10 +31,26 @@ interface SplitRowsProps {
   highlightedRowIndex: number | null;
 }
 
+const hasChildFn = (data: PseudoDatum[], splits: any) => {
+  let newData = data.map(item=>{
+    return item.__nest === 1 ?
+    {
+      ...item,
+      childNum: data.filter(cItem=> cItem.__nest === 2 && cItem[splits.get(0).reference] == item[splits.get(0).reference]).length
+    } : item
+  })
+  
+  return newData
+}
+
+
 export const SplitRows: React.SFC<SplitRowsProps> = props => {
   const { collapseRows, ...rest } = props;
   const { data, essence: { timezone, splits: { splits } } } = rest;
   if (!data) return null;
+
+  // let newData = hasChildFn(data, splits);
+
   return collapseRows ?
     <FlattenedSplits
       {...rest}

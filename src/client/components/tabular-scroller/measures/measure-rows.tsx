@@ -35,9 +35,10 @@ interface MeasureRowsProps {
   showBarPredicate: Predicate<Datum>;
 }
 
+
 export const MeasureRows: React.SFC<MeasureRowsProps> = props => {
   const { rowWidth, showBarPredicate, essence, cellWidth, hoverRow, scales, data, visibleRowsIndexRange, highlightedRowIndex } = props;
-
+  
   return <VisibleRows
     visibleRowsIndexRange={visibleRowsIndexRange}
     highlightedRowIndex={highlightedRowIndex}
@@ -46,7 +47,7 @@ export const MeasureRows: React.SFC<MeasureRowsProps> = props => {
     renderRow={props => {
       const { index, top, datum, highlight, dimmed } = props;
       const nest = datum.__nest;
-      const rowStyle: React.CSSProperties = { top, width: rowWidth, fontWeight: nest === 1 && 800 };
+      const rowStyle: React.CSSProperties = { top, width: rowWidth, fontWeight: nest === 1 && datum.childNum && 800 };
       const showBar = showBarPredicate(datum);
 
       return <MeasureRow
