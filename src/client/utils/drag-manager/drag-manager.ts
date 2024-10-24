@@ -18,10 +18,19 @@
 import { Dimension } from "../../../common/models/dimension/dimension";
 import { FilterClause } from "../../../common/models/filter-clause/filter-clause";
 import { Measure } from "../../../common/models/measure/measure";
+import { MeasuresGroup } from "../../../common/models/measure/measures";
 import { Series } from "../../../common/models/series/series";
 import { Split } from "../../../common/models/split/split";
 
-export enum DraggedElementType { NONE, DIMENSION, MEASURE, SERIES, SPLIT, FILTER }
+export enum DraggedElementType {
+  NONE,
+  DIMENSION,
+  MEASURE,
+  SERIES,
+  SPLIT,
+  FILTER,
+  MEASUREGROUP,
+}
 
 interface DraggedElementBase<T> {
   type: DraggedElementType;
@@ -34,6 +43,10 @@ interface DraggedDimension extends DraggedElementBase<Dimension> {
 
 interface DraggedMeasure extends DraggedElementBase<Measure> {
   type: DraggedElementType.MEASURE;
+}
+
+interface DraggedMeasureGroup extends DraggedElementBase<MeasuresGroup> {
+  type: DraggedElementType.MEASUREGROUP;
 }
 
 interface DraggedSeries extends DraggedElementBase<Series> {
@@ -52,7 +65,14 @@ interface None extends DraggedElementBase<void> {
   type: DraggedElementType.NONE;
 }
 
-type DraggedElement = DraggedDimension | DraggedMeasure | DraggedFilter | DraggedSplit | DraggedSeries | None;
+type DraggedElement =
+  | DraggedDimension
+  | DraggedMeasure
+  | DraggedMeasureGroup
+  | DraggedFilter
+  | DraggedSplit
+  | DraggedSeries
+  | None;
 
 const none: None = { type: DraggedElementType.NONE, element: null };
 
@@ -60,9 +80,13 @@ export class DragManager {
   static dragging: DraggedElement = none;
 
   static init() {
-    document.addEventListener("dragend", () => {
-      DragManager.dragging = none;
-    }, false);
+    document.addEventListener(
+      "dragend",
+      () => {
+        DragManager.dragging = none;
+      },
+      false
+    );
   }
 
   static isDraggingSplit(): boolean {
@@ -85,6 +109,10 @@ export class DragManager {
     this.dragging = { type: DraggedElementType.MEASURE, element };
   }
 
+  static setDragMeasureGroup(element: MeasuresGroup) {
+    this.dragging = { type: DraggedElementType.MEASUREGROUP, element };
+  }
+
   static setDragSeries(element: Series) {
     this.dragging = { type: DraggedElementType.SERIES, element };
   }
@@ -105,6 +133,11 @@ export class DragManager {
   static draggingMeasure(): Measure {
     const el = DragManager.dragging;
     return el.type === DraggedElementType.MEASURE ? el.element : null;
+  }
+
+  static draggingMeasureGroup(): MeasuresGroup {
+    const el = DragManager.dragging;
+    return el.type === DraggedElementType.MEASUREGROUP ? el.element : null;
   }
 
   static draggingSplit(): Split {

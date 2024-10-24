@@ -14,44 +14,45 @@
  * limitations under the License.
  */
 
-import { Record } from "immutable";
-import { RequireOnly } from "../../utils/functional/functional";
-import { Measure } from "../measure/measure";
-import { getNameWithDerivation, SeriesDerivation } from "./concrete-series";
-import { BasicSeriesValue, SeriesBehaviours } from "./series";
-import { DEFAULT_FORMAT, SeriesFormat } from "./series-format";
-import { SeriesType } from "./series-type";
+import { Record } from "immutable"
+import { RequireOnly } from "../../utils/functional/functional"
+import { Measure } from "../measure/measure"
+import { getNameWithDerivation, SeriesDerivation } from "./concrete-series"
+import { BasicSeriesValue, SeriesBehaviours } from "./series"
+import { DEFAULT_FORMAT, SeriesFormat } from "./series-format"
+import { SeriesType } from "./series-type"
+import { MeasuresGroup } from "../measure/measures"
 
 interface MeasureSeriesValue extends BasicSeriesValue {
-  type: SeriesType.MEASURE;
-  reference: string;
-  format: SeriesFormat;
+  type: SeriesType.MEASURE
+  reference: string
+  format: SeriesFormat
 }
 
 const defaultMeasureSeries: MeasureSeriesValue = {
   reference: null,
   format: DEFAULT_FORMAT,
-  type: SeriesType.MEASURE
-};
+  type: SeriesType.MEASURE,
+}
 
 export class MeasureSeries extends Record<MeasureSeriesValue>(defaultMeasureSeries) implements SeriesBehaviours {
   static fromMeasure(measure: Measure) {
-    return new MeasureSeries({ reference: measure.name });
+    return new MeasureSeries({ reference: measure.name })
   }
 
   static fromJS({ reference, format, type }: any) {
-    return new MeasureSeries({ reference, type, format: SeriesFormat.fromJS(format) });
+    return new MeasureSeries({ reference, type, format: SeriesFormat.fromJS(format) })
   }
 
   constructor(params: RequireOnly<MeasureSeriesValue, "reference">) {
-    super(params);
+    super(params)
   }
 
   key() {
-    return this.reference;
+    return this.reference
   }
 
   plywoodKey(derivation = SeriesDerivation.CURRENT): string {
-    return getNameWithDerivation(this.reference, derivation);
+    return getNameWithDerivation(this.reference, derivation)
   }
 }

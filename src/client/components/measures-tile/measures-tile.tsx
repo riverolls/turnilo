@@ -20,7 +20,7 @@ import { Component, DragEvent, MouseEvent } from "react";
 import { Clicker } from "../../../common/models/clicker/clicker";
 import { Essence } from "../../../common/models/essence/essence";
 import { Measure } from "../../../common/models/measure/measure";
-import { findMeasureByName } from "../../../common/models/measure/measures";
+import { findMeasureByName, findMeasureGroupByName, MeasuresGroup } from "../../../common/models/measure/measures";
 import { SeriesList } from "../../../common/models/series-list/series-list";
 import { Series } from "../../../common/models/series/series";
 import { Stage } from "../../../common/models/stage/stage";
@@ -96,14 +96,25 @@ export class MeasuresTile extends Component<MeasuresTileProps, MeasuresTileState
 
   dragStart = (measureName: string, e: DragEvent<HTMLElement>) => {
     const { essence: { dataCube } } = this.props;
-    const measure = findMeasureByName(dataCube.measures, measureName);
-
+    let measure: Measure | null = findMeasureByName(dataCube.measures, measureName);
+    let measureGroup: MeasuresGroup;
+    if (!measure) measureGroup = findMeasureGroupByName(dataCube.measures, measureName);
+    // console.log('拖动', measureName, measureGroup);
     const dataTransfer = e.dataTransfer;
     dataTransfer.effectAllowed = "all";
-    setDragData(dataTransfer, "text/plain", measure.title);
 
-    DragManager.setDragMeasure(measure);
-    setDragGhost(dataTransfer, measure.title);
+    if (measure) {
+      setDragData(dataTransfer, "text/plain", measure.title);
+      DragManager.setDragMeasure(measure);
+      setDragGhost(dataTransfer, measure.title);
+    }
+    else if (measureGroup) {
+      setDragData(dataTransfer, "text/plain", measureGroup.title);
+      DragManager.setDragMeasureGroup(measureGroup);
+      setDragGhost(dataTransfer, measureGroup.title);
+    }
+
+
   };
 
   toggleSearch = () => {

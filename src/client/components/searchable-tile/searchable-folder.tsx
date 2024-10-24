@@ -15,11 +15,12 @@
  */
 
 import * as React from "react";
-import { PureComponent } from "react";
+import { PureComponent, DragEvent } from "react";
 import { classNames } from "../../utils/dom/dom";
 import { InfoBubble } from "../info-bubble/info-bubble";
 import { SvgIcon } from "../svg-icon/svg-icon";
 import "./searchable-folder.scss";
+import { MeasureDragStartHandler } from "../measures-tile/measures-tile";
 
 export interface SearchableFolderProps {
   name: string;
@@ -28,6 +29,7 @@ export interface SearchableFolderProps {
   inSearchMode: boolean;
   hasItemsWithSearchText: boolean;
   shouldBeOpened: boolean;
+  folderDragStart?: MeasureDragStartHandler;
 }
 
 export interface SearchableFolderState {
@@ -62,6 +64,10 @@ export class SearchableFolder extends PureComponent<SearchableFolderProps, Searc
     this.setState(prevState => ({ opened: !prevState.opened }));
   };
 
+  handleDragStart = (e: DragEvent<HTMLElement>) => {
+    this.props.folderDragStart && this.props.folderDragStart(this.props.name, e);
+  };
+
   render() {
     const { title, description, inSearchMode, hasItemsWithSearchText, children } = this.props;
     const { opened } = this.state;
@@ -69,9 +75,9 @@ export class SearchableFolder extends PureComponent<SearchableFolderProps, Searc
     const isGroupOpen = opened || inSearchMode && hasItemsWithSearchText;
     const hidden = inSearchMode && !hasItemsWithSearchText;
 
-    return <div className={classNames("folder", { hidden })}>
+    return <div className={classNames("folder", { hidden })} >
       <div className="folder-header">
-        <div className="icon-label-container" onClick={this.handleClick}>
+        <div className="icon-label-container" onClick={this.handleClick} draggable={!!this.props.folderDragStart} onDragStart={this.handleDragStart}>
           <div className="folder-icon">
             {isGroupOpen ? this.openIcon : this.closedIcon}
           </div>
