@@ -18,7 +18,7 @@
 import * as d3 from "d3";
 import { List, Set } from "immutable";
 import { Dataset, Datum, NumberRange, PlywoodRange, PseudoDatum, Range } from "plywood";
-import * as React from "react";
+import React from "react";
 import { ChartProps } from "../../../common/models/chart-props/chart-props";
 import { DateRange } from "../../../common/models/date-range/date-range";
 import { canBucketByDefault, Dimension } from "../../../common/models/dimension/dimension";
@@ -42,6 +42,9 @@ import { or } from "../../../common/utils/functional/functional";
 import makeQuery from "../../../common/utils/query/visualization-query";
 import { Predicates } from "../../../common/utils/rules/predicates";
 import { BAR_CHART_MANIFEST } from "../../../common/visualization-manifests/bar-chart/bar-chart";
+import {
+  TimeSeriesVisualizationControls
+} from "../../components/timeseries-visualization-controls/visualization-controls";
 import { BucketMarks } from "../../components/bucket-marks/bucket-marks";
 import { GridLines } from "../../components/grid-lines/grid-lines";
 import { HighlightModal } from "../../components/highlight-modal/highlight-modal";
@@ -52,7 +55,11 @@ import { VerticalAxis } from "../../components/vertical-axis/vertical-axis";
 import { VisMeasureLabel } from "../../components/vis-measure-label/vis-measure-label";
 import { SPLIT, VIS_H_PADDING } from "../../config/constants";
 import { classNames, roundToPx } from "../../utils/dom/dom";
-import { ChartPanel, DefaultVisualizationControls, VisualizationProps } from "../../views/cube-view/center-panel/center-panel";
+import {
+  ChartPanel,
+  DefaultVisualizationControls,
+  VisualizationProps
+} from "../../views/cube-view/center-panel/center-panel";
 import { hasHighlightOn } from "../highlight-controller/highlight-controller";
 import "./bar-chart.scss";
 import { BarCoordinates } from "./bar-coordinates";
@@ -156,11 +163,23 @@ function padDataset(originalDataset: Dataset, dimension: Dimension, measures: Me
   (value.data[0][SPLIT] as Dataset).data = filledData;
   return new Dataset(value);
 }
+const newVersionSupports = or(
+  Predicates.areExactSplitKinds("time"),
+  Predicates.areExactSplitKinds("*", "time"),
+  Predicates.areExactSplitKinds("number"),
+  Predicates.areExactSplitKinds("*", "number")
+);
 
-export function BarChartVisualization(props: VisualizationProps) {
+export default function BarChartVisualization(props: VisualizationProps) {
+  if (newVersionSupports(props.essence)) {
+    return <React.Fragment>
+      <TimeSeriesVisualizationControls {...props} />
+      <ChartPanel {...props} queryFactory={makeQuery} chartComponent={ImprovedBarChart} />
+    </React.Fragment>;
+  }
   return <React.Fragment>
     <DefaultVisualizationControls {...props} />
-    <ChartPanel {...props} queryFactory={makeQuery} chartComponent={BarChart}/>
+    <ChartPanel {...props} queryFactory={makeQuery} chartComponent={BarChart} />
   </React.Fragment>;
 }
 
@@ -225,7 +244,7 @@ class BarChart extends React.Component<ChartProps, BarChartState> {
     return path;
   }
 
-  findBarCoordinatesForX(x: number, coordinates: BarCoordinates[], currentPath: number[]): { path: number[], coordinates: BarCoordinates } {
+  findBarCoordinatesForX(x: number, coordinates: BarCoordinates[], currentPath: number[]): { path: number[], coordinates: BarCoordinates; } {
     for (let i = 0; i < coordinates.length; i++) {
       if (coordinates[i].isXWithin(x)) {
         currentPath.push(i);
@@ -294,7 +313,7 @@ class BarChart extends React.Component<ChartProps, BarChartState> {
     return d3.extent(data, getY);
   }
 
-  getYScale(series: ConcreteSeries, yAxisStage: Stage): d3.scale.Linear<number, number> {
+  getYScale(series: ConcreteSeries, yAxisStage: Stage): d3.ScaleLinear<number, number> {
     const { essence } = this.props;
     const { flatData } = this.state;
 
@@ -303,7 +322,7 @@ class BarChart extends React.Component<ChartProps, BarChartState> {
 
     const extentY = this.getYExtent(leafData, series);
 
-    return d3.scale.linear()
+    return d3.scaleLinear()
       .domain([Math.min(extentY[0] * 1.1, 0), Math.max(extentY[1] * 1.1, 0)])
       .range([yAxisStage.height, yAxisStage.y]);
   }
@@ -337,7 +356,7 @@ class BarChart extends React.Component<ChartProps, BarChartState> {
     return chartStage.height + CHART_TOP_PADDING + CHART_BOTTOM_PADDING;
   }
 
-  getAxisStages(chartStage: Stage): { xAxisStage: Stage, yAxisStage: Stage } {
+  getAxisStages(chartStage: Stage): { xAxisStage: Stage, yAxisStage: Stage; } {
     const { essence, stage } = this.props;
 
     const xHeight = Math.max(
@@ -485,7 +504,7 @@ class BarChart extends React.Component<ChartProps, BarChartState> {
     coordinates: BarCoordinates[],
     splitIndex = 0,
     path: Datum[] = []
-  ): { bars: JSX.Element[], highlight: JSX.Element } {
+  ): { bars: JSX.Element[], highlight: JSX.Element; } {
     const { essence } = this.props;
     const { timezone } = essence;
 
@@ -572,7 +591,7 @@ class BarChart extends React.Component<ChartProps, BarChartState> {
       height: roundToPx(Math.abs(height) + SELECTION_PAD * 2)
     };
 
-    return <div className="selection-highlight" style={style}/>;
+    return <div className="selection-highlight" style={style} />;
   }
 
   renderXAxis(data: Datum[], coordinates: BarCoordinates[], xAxisStage: Stage): JSX.Element {
@@ -624,14 +643,14 @@ class BarChart extends React.Component<ChartProps, BarChartState> {
 
     return <div className="x-axis" style={{ width: xAxisStage.width }}>
       <svg style={xAxisStage.getWidthHeight()} viewBox={xAxisStage.getViewBox()}>
-        <BucketMarks stage={xAxisStage} ticks={xTicks} scale={xScale}/>
+        <BucketMarks stage={xAxisStage} ticks={xTicks} scale={xScale} />
       </svg>
       {labels}
     </div>;
   }
 
   getYAxisStuff(dataset: Dataset, series: ConcreteSeries, chartStage: Stage, chartIndex: number): {
-    yGridLines: JSX.Element, yAxis: JSX.Element, yScale: d3.scale.Linear<number, number>
+    yGridLines: JSX.Element, yAxis: JSX.Element, yScale: d3.ScaleLinear<number, number>;
   } {
     const { yAxisStage } = this.getAxisStages(chartStage);
 
@@ -683,20 +702,20 @@ class BarChart extends React.Component<ChartProps, BarChartState> {
     series: ConcreteSeries,
     chartIndex: number,
     chartStage: Stage
-  ): { yAxis: JSX.Element, chart: JSX.Element, highlight: JSX.Element } {
+  ): { yAxis: JSX.Element, chart: JSX.Element, highlight: JSX.Element; } {
     const { essence } = this.props;
     const mySplitDataset = dataset.data[0][SPLIT] as Dataset;
     const measureLabel = <VisMeasureLabel
       series={series}
       datum={dataset.data[0]}
-      showPrevious={essence.hasComparison()}/>;
+      showPrevious={essence.hasComparison()} />;
 
     // Invalid data, early return
     if (!this.hasValidYExtent(series, mySplitDataset.data)) {
       return {
         chart: <div className="measure-bar-chart" key={series.reactKey()} style={{ width: chartStage.width }}>
           <svg style={chartStage.getWidthHeight(0, CHART_BOTTOM_PADDING)}
-               viewBox={chartStage.getViewBox(0, CHART_BOTTOM_PADDING)}/>
+            viewBox={chartStage.getViewBox(0, CHART_BOTTOM_PADDING)} />
           {measureLabel}
         </div>,
         yAxis: null,
@@ -718,7 +737,7 @@ class BarChart extends React.Component<ChartProps, BarChartState> {
 
     const chart = <div className="measure-bar-chart" key={series.reactKey()} style={{ width: chartStage.width }}>
       <svg style={chartStage.getWidthHeight(0, CHART_BOTTOM_PADDING)}
-           viewBox={chartStage.getViewBox(0, CHART_BOTTOM_PADDING)}>
+        viewBox={chartStage.getViewBox(0, CHART_BOTTOM_PADDING)}>
         {yGridLines}
         <g className="bars" transform={chartStage.getTransform()}>{bars}</g>
       </svg>
@@ -787,7 +806,7 @@ class BarChart extends React.Component<ChartProps, BarChartState> {
       .rangeBands([padLeft, padLeft + usedWidth]);
   }
 
-  getBarDimensions(xRangeBand: number): { stepWidth: number, barWidth: number, barOffset: number } {
+  getBarDimensions(xRangeBand: number): { stepWidth: number, barWidth: number, barOffset: number; } {
     if (isNaN(xRangeBand)) xRangeBand = 0;
     const stepWidth = xRangeBand;
     const barWidth = Math.max(stepWidth * BAR_PROPORTION, 0);
@@ -796,7 +815,7 @@ class BarChart extends React.Component<ChartProps, BarChartState> {
     return { stepWidth, barWidth, barOffset };
   }
 
-  getXValues(maxNumberOfLeaves: number[]): { padLeft: number, usedWidth: number } {
+  getXValues(maxNumberOfLeaves: number[]): { padLeft: number, usedWidth: number; } {
     const { essence, stage } = this.props;
     const overallWidth = stage.width - VIS_H_PADDING * 2 - Y_AXIS_WIDTH;
 
@@ -853,8 +872,8 @@ class BarChart extends React.Component<ChartProps, BarChartState> {
     series: ConcreteSeries,
     chartStage: Stage,
     getX: (d: Datum, i: number) => string,
-    xScale: d3.scale.Ordinal<string, number>,
-    scaleY: d3.scale.Linear<number, number>,
+    xScale: d3.ScaleOrdinal<string, number>,
+    scaleY: d3.ScaleLinear<number, number>,
     splitIndex = 1
   ): BarCoordinates[] {
     const { essence } = this.props;
@@ -921,7 +940,7 @@ class BarChart extends React.Component<ChartProps, BarChartState> {
         saveHighlight={saveHighlight}
         dataset={data}
         essence={essence}
-        stage={stage}/>;
+        stage={stage} />;
     }
 
     let scrollerLayout: ScrollerLayout;

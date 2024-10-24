@@ -15,23 +15,21 @@
  * limitations under the License.
  */
 
-import { VisualizationManifest } from "../../common/models/visualization-manifest/visualization-manifest";
-import { BarChartVisualization } from "./bar-chart/bar-chart";
-import { GridVisualization } from "./grid/grid";
-import { HeatMapVisualization } from "./heat-map/heat-map";
-import { LineChartVisualization } from "./line-chart/line-chart";
-import { TableVisualization } from "./table/table";
-import { TotalsVisualization } from "./totals/totals";
+import { Visualization } from "../../common/models/visualization-manifest/visualization-manifest";
+import { VisualizationProps } from "../views/cube-view/center-panel/center-panel";
 
 const VISUALIZATIONS  = {
-  "totals": TotalsVisualization,
-  "table": TableVisualization,
-  "line-chart": LineChartVisualization,
-  "bar-chart": BarChartVisualization,
-  "heatmap": HeatMapVisualization,
-  "grid": GridVisualization
+  "totals": () => import(/* webpackChunkName: "totals" */ "./totals/totals"),
+  "table": () => import(/* webpackChunkName: "table" */ "./table/table"),
+  "line-chart": () => import(/* webpackChunkName: "line-chart" */ "./line-chart/line-chart"),
+  "bar-chart": () => import(/* webpackChunkName: "bar-chart" */ "./bar-chart/bar-chart"),
+  "heatmap": () => import(/* webpackChunkName: "heatmap" */ "./heat-map/heat-map"),
+  "grid": () => import(/* webpackChunkName: "grid" */ "./grid/grid"),
+  "scatterplot": () => import(/* webpackChunkName: "scatterplot" */ "./scatterplot/scatterplot")
 };
 
-export function getVisualizationComponent({ name }: VisualizationManifest) {
+export function getVisualizationComponent(name: Visualization): () => Promise<{
+  default: React.ComponentType<VisualizationProps>;
+}> {
   return VISUALIZATIONS[name];
 }

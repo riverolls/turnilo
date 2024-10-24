@@ -15,13 +15,13 @@
  */
 
 import { Dataset, Datum, NumberRange, TimeRange } from "plywood";
-import * as React from "react";
-import { NORMAL_COLORS } from "../../../../../common/models/colors/colors";
+import React from "react";
 import { Essence } from "../../../../../common/models/essence/essence";
 import { defaultFormatter } from "../../../../../common/models/series/series-format";
 import { Stage } from "../../../../../common/models/stage/stage";
 import { Unary } from "../../../../../common/utils/functional/functional";
 import { selectFirstSplitDataset, selectSplitDataset } from "../../../../utils/dataset/selectors/selectors";
+import { useSettingsContext } from "../../../../views/cube-view/settings-context";
 import { BaseChart } from "../../base-chart/base-chart";
 import { ColoredSeriesChartLine } from "../../chart-line/colored-series-chart-line";
 import { SingletonSeriesChartLine } from "../../chart-line/singleton-series-chart-line";
@@ -46,8 +46,19 @@ interface SplitChartProps {
   visualisationStage: Stage;
 }
 
-export const SplitChart: React.SFC<SplitChartProps> = props => {
-  const { chartId, interactions, visualisationStage, chartStage, essence, xScale, xTicks, selectDatum, dataset } = props;
+export const SplitChart: React.FunctionComponent<SplitChartProps> = props => {
+  const { customization: { visualizationColors } } = useSettingsContext();
+  const {
+    chartId,
+    interactions,
+    visualisationStage,
+    chartStage,
+    essence,
+    xScale,
+    xTicks,
+    selectDatum,
+    dataset
+  } = props;
   const { interaction } = interactions;
   const splitDatum = selectDatum(dataset);
   const continuousSplitDataset = selectFirstSplitDataset(dataset);
@@ -62,7 +73,7 @@ export const SplitChart: React.SFC<SplitChartProps> = props => {
     dataset={splitDataset} />;
 
   const continuousSplit = getContinuousSplit(essence);
-  const getX = (d: Datum) => d[continuousSplit.reference] as (TimeRange | NumberRange);
+  const getX = (d: Datum) => continuousSplit.selectValue<TimeRange | NumberRange>(d);
   const domain = extentAcrossSeries(splitDataset, essence);
 
   if (series.count() === 1) {
@@ -107,7 +118,7 @@ export const SplitChart: React.SFC<SplitChartProps> = props => {
     singleSeries={false}>
     {({ yScale, lineStage }) => <React.Fragment>
       {series.toArray().map((series, index) => {
-        const color = NORMAL_COLORS[index];
+        const color = visualizationColors.series[index];
         return <ColoredSeriesChartLine
           key={series.plywoodKey()}
           xScale={xScale}

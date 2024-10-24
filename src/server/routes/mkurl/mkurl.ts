@@ -16,78 +16,32 @@
  */
 
 import { Request, Response, Router } from "express";
-import { ClientDataCube } from "../../../common/models/data-cube/data-cube";
-import { isQueryable } from "../../../common/models/data-cube/queryable-data-cube";
-import { Essence } from "../../../common/models/essence/essence";
-import { getDataCube, Sources } from "../../../common/models/sources/sources";
 import { urlHashConverter } from "../../../common/utils/url-hash-converter/url-hash-converter";
-import { definitionConverters, ViewDefinitionVersion } from "../../../common/view-definitions";
-import { SourcesGetter } from "../../utils/settings-manager/settings-manager";
+import { createEssence } from "../../utils/essence/create-essence";
+import { handleRequestErrors } from "../../utils/request-errors/handle-request-errors";
+import { parseDataCube } from "../../utils/request-params/parse-data-cube";
+import { parseViewDefinition } from "../../utils/request-params/parse-view-definition";
+import { parseViewDefinitionConverter } from "../../utils/request-params/parse-view-definition-converter";
+import { SettingsManager } from "../../utils/settings-manager/settings-manager";
 
-export function mkurlRouter(sourcesGetter: SourcesGetter) {
+export function mkurlRouter(settings: Pick<SettingsManager, "getSources" | "appSettings" | "logger">) {
 
   const router = Router();
 
   router.post("/", async (req: Request, res: Response) => {
-    const { dataCubeName, viewDefinitionVersion, viewDefinition } = req.body;
-
-    if (typeof viewDefinitionVersion !== "string") {
-      res.status(400).send({ error: "must have a viewDefinitionVersion" });
-      return;
-    }
-
-    const definitionConverter = definitionConverters[viewDefinitionVersion as ViewDefinitionVersion];
-
-    if (definitionConverter == null) {
-      res.status(400).send({ error: "unsupported viewDefinitionVersion value"
-      });
-      return;
-    }
-
-    if (typeof dataCubeName !== "string") {
-      res.status(400).send({ error: "must have a dataCubeName" });
-      return;
-    }
-
-    if (typeof viewDefinition !== "object") {
-      res.status(400).send({ error: "viewDefinition must be an object" });
-      return;
-    }
-
-    let sources: Sources;
-    try {
-      sources = await sourcesGetter();
-    } catch (e) {
-      res.status(400).send({ error: "Couldn't load settings" });
-      return;
-    }
-    const myDataCube = getDataCube(sources, dataCubeName);
-    if (!myDataCube) {
-      res.status(400).send({ error: "unknown data cube" });
-      return;
-    }
-
-    if (!isQueryable(myDataCube)) {
-      res.status(400).send({ error: "un queryable data cube" });
-      return;
-    }
-
-    let essence: Essence;
-    const clientDataCube: ClientDataCube = {
-      ...myDataCube,
-      timeAttribute: myDataCube.timeAttribute && myDataCube.timeAttribute.name
-    };
 
     try {
-      essence = definitionConverter.fromViewDefinition(viewDefinition, clientDataCube);
-    } catch ({ message }) {
-      res.status(400).send({ error: "invalid viewDefinition object", message });
-      return;
-    }
+      const dataCube = await parseDataCube(req, settings);
+      const viewDefinition = parseViewDefinition(req);
+      const converter = parseViewDefinitionConverter(req);
 
-    res.json({
-      hash: `#${myDataCube.name}/${urlHashConverter.toHash(essence)}`
-    });
+      const essence = createEssence(viewDefinition, converter, dataCube, settings.appSettings);
+
+      const hash = `#${dataCube.name}/${urlHashConverter.toHash(essence)}`;
+      res.json({ hash });
+    } catch (error) {
+      handleRequestErrors(error, res, settings.logger);
+    }
   });
   return router;
 }

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import * as React from "react";
+import React from "react";
 import { ClientCustomization } from "../../../common/models/customization/customization";
 import { ClientDataCube } from "../../../common/models/data-cube/data-cube";
 import { Fn } from "../../../common/utils/general/general";
@@ -73,15 +73,12 @@ export class HomeView extends React.Component<HomeViewProps, HomeViewState> {
   }
 
   render() {
-    const { onOpenAbout, dataCubes, customization } = this.props;
+    const { onOpenAbout, dataCubes } = this.props;
     const { query } = this.state;
     const hasDataCubes = dataCubes.length > 0;
 
     return <div className="home-view">
-      <HeaderBar
-        customization={customization}
-        title={STRINGS.home}
-      >
+      <HeaderBar title={STRINGS.home}>
         <button className="text-button" onClick={onOpenAbout}>
           {STRINGS.infoAndFeedback}
         </button>

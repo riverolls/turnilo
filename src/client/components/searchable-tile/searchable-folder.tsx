@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import * as React from "react";
+import React from "react";
 import { PureComponent, DragEvent } from "react";
 import { classNames } from "../../utils/dom/dom";
 import { InfoBubble } from "../info-bubble/info-bubble";
@@ -50,7 +50,7 @@ export class SearchableFolder extends PureComponent<SearchableFolderProps, Searc
     this.state = { opened: inSearchMode && hasItemsWithSearchText || shouldBeOpened };
   }
 
-  componentWillReceiveProps(nextProps: Readonly<SearchableFolderProps>) {
+  UNSAFE_componentWillReceiveProps(nextProps: Readonly<SearchableFolderProps>) {
     const { opened } = this.state;
     const { shouldBeOpened } = this.props;
 

@@ -15,7 +15,7 @@
  */
 
 import e from "express";
-import * as React from "react";
+import React from "react";
 import { TooltipWithinStageProps } from "./tooltip-within-stage";
 
 export type Rect = ClientRect | DOMRect;
@@ -34,20 +34,22 @@ export function calculatePosition(props: TooltipWithinStageProps, rect?: Rect): 
   const stageBottom = stage.y + stage.height;
   const stageRight = stage.x + stage.width;
 
-  let top = rect.bottom > stageBottom
-    ? initialTop - margin - rect.height + stage.y
-    : rect.top < stage.y
+  let top =
+    rect.bottom > stageBottom
+      ? initialTop - margin - rect.height + stage.y
+      : rect.top < stage.y
       ? initialTop + rect.height
       : initialTop + margin;
 
-  let left = rect.right > stageRight
-    ? initialLeft - margin - rect.width
-    : rect.left < stage.x
+  let left =
+    rect.right > stageRight
+      ? initialLeft - margin - rect.width
+      : rect.left < stage.x
       ? initialLeft + rect.width
       : initialLeft + margin;
 
   // @ts-ignore
-  if(typeof(stage.index) !== 'undefined') top = top <= -(stage.index * 200) ? -(stage.index * 200) : top;
-  
+  if (typeof stage.index !== "undefined") top = top <= -(stage.index * 200) ? -(stage.index * 200) : top;
+
   return { top, left };
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import * as React from "react";
+import React from "react";
 import { Clicker } from "../../../common/models/clicker/clicker";
 import { Dimension } from "../../../common/models/dimension/dimension";
 import { Essence } from "../../../common/models/essence/essence";
@@ -24,10 +24,8 @@ import { Stage } from "../../../common/models/stage/stage";
 import { Timekeeper } from "../../../common/models/timekeeper/timekeeper";
 import { Unary } from "../../../common/utils/functional/functional";
 import { Fn } from "../../../common/utils/general/general";
-import { classNames } from "../../utils/dom/dom";
 import { FilterMenu } from "../filter-menu/filter-menu";
 import { WithRef } from "../with-ref/with-ref";
-import { FILTER_CLASS_NAME } from "./filter-tile";
 
 interface PartialFilterTileProps {
   dimension: Dimension;
@@ -41,11 +39,11 @@ interface PartialFilterTileProps {
   closeItem: Fn;
 }
 
-export const PartialFilterTile: React.SFC<PartialFilterTileProps> = props => {
+export const PartialFilterTile: React.FunctionComponent<PartialFilterTileProps> = props => {
   const { closeItem, saveClause, essence, timekeeper, locale, clicker, stage, dimension, style } = props;
   return <WithRef>
     {({ ref: openOn, setRef }) => <div
-      className={classNames(FILTER_CLASS_NAME, "dimension", "selected", "included")}
+      className={"tile dimension selected included"}
       ref={setRef}
       style={style}>
       <div className="reading">{dimension.title}</div>

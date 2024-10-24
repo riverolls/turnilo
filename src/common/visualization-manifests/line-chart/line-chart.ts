@@ -17,7 +17,6 @@
 
 import { List } from "immutable";
 import { getDimensionsByKind } from "../../models/data-cube/data-cube";
-import { Dimension } from "../../models/dimension/dimension";
 import { findDimensionByName } from "../../models/dimension/dimensions";
 import { DimensionSort, SortDirection } from "../../models/sort/sort";
 import { Split } from "../../models/split/split";
@@ -27,21 +26,10 @@ import {
   Resolve,
   VisualizationManifest
 } from "../../models/visualization-manifest/visualization-manifest";
-import { thread } from "../../utils/functional/functional";
 import { Predicates } from "../../utils/rules/predicates";
-import { adjustColorSplit, adjustContinuousTimeSplit, adjustFiniteLimit } from "../../utils/rules/split-adjustments";
+import { adjustColorSplit, adjustContinuousSplit } from "../../utils/rules/split-adjustments";
 import { visualizationDependentEvaluatorBuilder } from "../../utils/rules/visualization-dependent-evaluator";
 import { settings } from "./settings";
-
-function fixNumberSplit(split: Split, dimension: Dimension): Split {
-  return thread(
-    split.changeSort(new DimensionSort({
-      reference: split.reference,
-      direction: SortDirection.ascending
-    })),
-    adjustFiniteLimit(dimension.limits)
-  );
-}
 
 const rulesEvaluator = visualizationDependentEvaluatorBuilder
   .when(({ dataCube }) => !(getDimensionsByKind(dataCube, "time").length || getDimensionsByKind(dataCube, "number").length))
@@ -65,23 +53,21 @@ const rulesEvaluator = visualizationDependentEvaluatorBuilder
   .when(Predicates.areExactSplitKinds("time"))
   .then(({ splits, isSelectedVisualization }) => {
     const timeSplit = splits.getSplit(0);
-    const newTimeSplit = adjustContinuousTimeSplit(timeSplit);
+    const newTimeSplit = adjustContinuousSplit(timeSplit);
     if (timeSplit.equals(newTimeSplit)) return Resolve.ready(isSelectedVisualization ? 10 : 7);
     return Resolve.automatic(7, { splits: new Splits({ splits: List([newTimeSplit]) }) });
   })
   .when(Predicates.areExactSplitKinds("number"))
-  .then(({ splits, dataCube, isSelectedVisualization }) => {
+  .then(({ splits, isSelectedVisualization }) => {
     const numberSplit = splits.getSplit(0);
-    const dimension = findDimensionByName(dataCube.dimensions, numberSplit.reference);
-
-    const newContinuousSplit = fixNumberSplit(numberSplit, dimension);
+    const newContinuousSplit = adjustContinuousSplit(numberSplit);
 
     if (newContinuousSplit.equals(numberSplit)) return Resolve.ready(isSelectedVisualization ? 10 : 4);
-    return Resolve.automatic(4, { splits: new Splits({ splits: List([numberSplit]) }) });
+    return Resolve.automatic(4, { splits: new Splits({ splits: List([newContinuousSplit]) }) });
   })
 
   .when(Predicates.areExactSplitKinds("time", "*"))
-  .then(({ splits, series, dataCube }) => {
+  .then(({ splits, series, dataCube, appSettings }) => {
     const timeSplit = splits.getSplit(0);
 
     const newTimeSplit = timeSplit
@@ -90,37 +76,48 @@ const rulesEvaluator = visualizationDependentEvaluatorBuilder
 
     const colorSplit = splits.getSplit(1);
     const colorDimension = findDimensionByName(dataCube.dimensions, colorSplit.reference);
-
-    const newColorSplit = adjustColorSplit(colorSplit, colorDimension, series);
+    const newColorSplit = adjustColorSplit(colorSplit, colorDimension, series, appSettings.customization.visualizationColors);
 
     return Resolve.automatic(8, {
       splits: new Splits({ splits: List([newColorSplit, newTimeSplit]) })
     });
   })
+  .when(Predicates.areExactSplitKinds("number", "*"))
+  .then(({ splits, series, dataCube, appSettings }) => {
+    const numberSplit = splits.getSplit(0);
+
+    const newNumberSplit = adjustContinuousSplit(numberSplit);
+
+    const colorSplit = splits.getSplit(1);
+    const colorDimension = findDimensionByName(dataCube.dimensions, colorSplit.reference);
+    const newColorSplit = adjustColorSplit(colorSplit, colorDimension, series, appSettings.customization.visualizationColors);
+
+    return Resolve.automatic(8, {
+      splits: new Splits({ splits: List([newColorSplit, newNumberSplit]) })
+    });
+  })
 
   .when(Predicates.areExactSplitKinds("*", "time"))
-  .then(({ splits, series, dataCube }) => {
+  .then(({ splits, series, dataCube, appSettings }) => {
     const timeSplit = splits.getSplit(1);
-    const newTimeSplit = adjustContinuousTimeSplit(timeSplit);
+    const newTimeSplit = adjustContinuousSplit(timeSplit);
 
     const colorSplit = splits.getSplit(0);
     const colorDimension = findDimensionByName(dataCube.dimensions, colorSplit.reference);
-    const newColorSplit = adjustColorSplit(colorSplit, colorDimension, series);
+    const newColorSplit = adjustColorSplit(colorSplit, colorDimension, series, appSettings.customization.visualizationColors);
 
     const newSplits = new Splits({ splits: List([newColorSplit, newTimeSplit]) });
     if (newSplits.equals(splits)) return Resolve.ready(10);
     return Resolve.automatic(8, { splits: newSplits });
   })
   .when(Predicates.areExactSplitKinds("*", "number"))
-  .then(({ splits, dataCube, series }) => {
+  .then(({ splits, dataCube, series, appSettings }) => {
     const numberSplit = splits.getSplit(1);
-    const numberDimension = findDimensionByName(dataCube.dimensions, numberSplit.reference);
-
-    const newNumberSplit = fixNumberSplit(numberSplit, numberDimension);
+    const newNumberSplit = adjustContinuousSplit(numberSplit);
 
     const colorSplit = splits.getSplit(0);
     const colorDimension = findDimensionByName(dataCube.dimensions, colorSplit.reference);
-    const newColorSplit = adjustColorSplit(colorSplit, colorDimension, series);
+    const newColorSplit = adjustColorSplit(colorSplit, colorDimension, series, appSettings.customization.visualizationColors);
 
     const newSplits = new Splits({ splits: List([newColorSplit, newNumberSplit]) });
     if (newSplits.equals(splits)) return Resolve.ready(10);
@@ -129,7 +126,7 @@ const rulesEvaluator = visualizationDependentEvaluatorBuilder
 
   .when(Predicates.haveAtLeastSplitKinds("time"))
   .then(({ splits, dataCube }) => {
-    let timeSplit = splits.splits.find(split => findDimensionByName(dataCube.dimensions, split.reference).kind === "time");
+    const timeSplit = splits.splits.find(split => findDimensionByName(dataCube.dimensions, split.reference).kind === "time");
     return Resolve.manual(NORMAL_PRIORITY_ACTION, "Too many splits on the line chart", [
       {
         description: "Remove all but the time split",
@@ -141,7 +138,7 @@ const rulesEvaluator = visualizationDependentEvaluatorBuilder
   })
 
   .otherwise(({ dataCube }) => {
-    let continuousDimensions = getDimensionsByKind(dataCube, "time").concat(getDimensionsByKind(dataCube, "number"));
+    const continuousDimensions = getDimensionsByKind(dataCube, "time").concat(getDimensionsByKind(dataCube, "number"));
     return Resolve.manual(NORMAL_PRIORITY_ACTION, "The Line Chart needs one continuous dimension split",
       continuousDimensions.map(continuousDimension => {
         return {

@@ -19,7 +19,6 @@ import * as fileSaver from "file-saver";
 import { Dataset, TabulatorOptions } from "plywood";
 import { Essence } from "../../../common/models/essence/essence";
 import { Timekeeper } from "../../../common/models/timekeeper/timekeeper";
-import { formatUrlSafeDateTime } from "../../../common/utils/time/time";
 import tabularOptions from "../tabular-options/tabular-options";
 
 export type FileFormat = "csv" | "tsv";
@@ -41,7 +40,7 @@ function saveFile(part: string | Buffer, fileName: string, fileFormat: FileForma
 
 function encodeContent(content: string, encoding: string): Promise<string | Buffer> {
   if (encoding === "utf-8") return Promise.resolve(content);
-  return import("iconv-lite").then(iconv => iconv.encode(content, encoding));
+  return import(/* webpackChunkName: "iconv-lite" */ "iconv-lite").then(iconv => iconv.encode(content, encoding));
 }
 
 export function download(dataset: Dataset, essence: Essence, fileFormat: FileFormat, fileName: string, fileEncoding: string) {
@@ -61,9 +60,5 @@ export function datasetToFileString(dataset: Dataset, fileFormat: FileFormat, op
 }
 
 export function fileNameBase(essence: Essence, timekeeper: Timekeeper): string {
-  const timeFilter = essence.currentTimeFilter(timekeeper);
-  const { start, end } = timeFilter.values.first();
-  const timezone = essence.timezone;
-
-  return `${essence.dataCube.name}_${formatUrlSafeDateTime(start, timezone)}_${formatUrlSafeDateTime(end, timezone)}`;
+  return essence.description(timekeeper);
 }

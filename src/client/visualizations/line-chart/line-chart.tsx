@@ -15,12 +15,12 @@
  * limitations under the License.
  */
 
-import * as React from "react";
+import React from "react";
 import { ChartProps } from "../../../common/models/chart-props/chart-props";
-import makeQuery from "../../../common/utils/query/visualization-query";
 import { LINE_CHART_MANIFEST } from "../../../common/visualization-manifests/line-chart/line-chart";
 import { MessageCard } from "../../components/message-card/message-card";
-import { ChartPanel, DefaultVisualizationControls, VisualizationProps } from "../../views/cube-view/center-panel/center-panel";
+import { TimeSeriesVisualizationControls } from "../../components/timeseries-visualization-controls/visualization-controls";
+import { ChartPanel, VisualizationProps } from "../../views/cube-view/center-panel/center-panel";
 import { Charts } from "./charts/charts";
 import { InteractionController } from "./interactions/interaction-controller";
 import "./line-chart.scss";
@@ -31,10 +31,10 @@ import { XAxis } from "./x-axis/x-axis";
 const Y_AXIS_WIDTH = 100;
 const X_AXIS_HEIGHT = 30;
 
-export function LineChartVisualization(props: VisualizationProps) {
+export default function LineChartVisualization(props: VisualizationProps) {
   return <React.Fragment>
-    <DefaultVisualizationControls {...props} />
-    <ChartPanel {...props} queryFactory={makeQuery} chartComponent={LineChart}/>
+    <TimeSeriesVisualizationControls {...props} />
+    <ChartPanel {...props} chartComponent={LineChart}/>
   </React.Fragment>;
 }
 
@@ -81,13 +81,13 @@ class LineChart extends React.Component<ChartProps> {
               essence={essence}
               xScale={scale}
               xTicks={ticks}
-              dataset={data} />
+              dataset={data}/>
           </div>
           <XAxis
             width={stage.width}
             ticks={ticks}
             scale={scale}
-            timezone={essence.timezone} />
+            timezone={essence.timezone}/>
         </div>;
       }}
     </InteractionController>;

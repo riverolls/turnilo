@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import * as React from "react";
+import React from "react";
 import { DragPosition } from "../../../common/models/drag-position/drag-position";
 import { Measure } from "../../../common/models/measure/measure";
 import { MeasureSeries } from "../../../common/models/series/measure-series";
@@ -32,7 +32,6 @@ import { PartialSeries } from "../../views/cube-view/partial-tiles-provider";
 import { DragIndicator } from "../drag-indicator/drag-indicator";
 import { AddSeries } from "./add-series";
 import { SeriesTiles } from "./series-tiles";
-import "./series-tiles-row.scss";
 
 interface SeriesTilesRowProps {
   menuStage: Stage;
@@ -249,7 +248,7 @@ export class SeriesTilesRow extends React.Component<SeriesTilesRowProps, SeriesT
     const { dragPosition, openedSeries, overflowOpen } = this.state;
     const { essence } = this.context;
     const { menuStage, removePartialSeries, partialSeries } = this.props;
-    return <div className="series-tile" onDragEnter={this.dragEnter}>
+    return <div className="tile-row series-tile-row" onDragEnter={this.dragEnter}>
       <div className="title">{STRINGS.series}</div>
       <div className="items" ref={this.items}>
         <SeriesTiles

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import * as React from "react";
+import React from "react";
 import { ReactElement } from "react";
 import { Essence } from "../../../common/models/essence/essence";
 import { findMeasureByName } from "../../../common/models/measure/measures";
@@ -29,8 +29,6 @@ import { PartialSeries } from "../../views/cube-view/partial-tiles-provider";
 import { TileOverflowContainer } from "../tile-overflow-container/tile-overflow-container";
 import { PlaceholderSeriesTile } from "./placeholder-series";
 import { SeriesTile } from "./series-tile";
-
-export const SERIES_CLASS_NAME = "series";
 
 interface SeriesTilesProps {
   menuStage: Stage;
@@ -50,7 +48,7 @@ interface SeriesTilesProps {
   openOverflowMenu: Fn;
 }
 
-export const SeriesTiles: React.SFC<SeriesTilesProps> = props => {
+export const SeriesTiles: React.FunctionComponent<SeriesTilesProps> = props => {
   const {
     openedSeriesMenu,
     menuStage,

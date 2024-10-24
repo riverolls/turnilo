@@ -119,10 +119,10 @@ export function range(from: number, to: number): number[] {
 }
 
 // TODO: fix to use infer on arguments tuple https://stackoverflow.com/a/50014868/1089761
-export function debounceWithPromise<T extends (...args: any[]) => any>(fn: T, ms: number): ((...args: any[]) => Promise<any>) & { cancel: Fn } {
+export function debounceWithPromise<T extends (...args: any[]) => Promise<any>>(fn: T, ms: number): ((...args: Parameters<T>) => Promise<any>) & { cancel: Fn } {
   let timeoutId: any;
 
-  const debouncedFn = function(...args: any[]) {
+  const debouncedFn = (...args: Parameters<T>) => {
     let resolve: Function;
     const promise = new Promise(pResolve => {
       resolve = pResolve;
@@ -139,7 +139,7 @@ export function debounceWithPromise<T extends (...args: any[]) => any>(fn: T, ms
     timeoutId = setTimeout(callLater, ms);
 
     return promise;
-  } as any;
+  };
 
   debouncedFn.cancel = () => timeoutId && clearTimeout(timeoutId);
 

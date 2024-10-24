@@ -15,7 +15,7 @@
  */
 
 import { Datum, PseudoDatum } from "plywood";
-import * as React from "react";
+import React from "react";
 import { Essence } from "../../../../../common/models/essence/essence";
 import { FlattenedSplitColumns } from "../../../../components/tabular-scroller/splits/flattened-split-columns";
 import { FlattenedSplits } from "../../../../components/tabular-scroller/splits/flattened-splits";
@@ -32,19 +32,19 @@ interface SplitRowsProps {
 }
 
 const hasChildFn = (data: PseudoDatum[], splits: any) => {
-  let newData = data.map(item=>{
+  let newData = data.map(item => {
     return item.__nest === 1 ?
-    {
-      ...item,
-      childNum: data.filter(cItem=> cItem.__nest === 2 && cItem[splits.get(0).reference] == item[splits.get(0).reference]).length
-    } : item
-  })
-  
-  return newData
-}
+      {
+        ...item,
+        childNum: data.filter(cItem => cItem.__nest === 2 && cItem[splits.get(0).reference] == item[splits.get(0).reference]).length
+      } : item;
+  });
+
+  return newData;
+};
 
 
-export const SplitRows: React.SFC<SplitRowsProps> = props => {
+export const SplitRows: React.FunctionComponent<SplitRowsProps> = props => {
   const { collapseRows, ...rest } = props;
   const { data, essence: { timezone, splits: { splits } } } = rest;
   if (!data) return null;

@@ -15,14 +15,40 @@
  */
 
 import { ClientAppSettings, SerializedAppSettings } from "../../common/models/app-settings/app-settings";
-import { deserialize as customizationDeserialize } from "./customization";
-import { deserialize as oauthDeserialize } from "./oauth";
+import { deserialize as deserializeCustomization } from "./customization";
+import { deserialize as deserializeOauth } from "./oauth";
 
 export function deserialize({ oauth, clientTimeout, customization, version }: SerializedAppSettings): ClientAppSettings {
   return {
     clientTimeout,
     version,
-    customization: customizationDeserialize(customization),
-    oauth: oauthDeserialize(oauth)
+    customization: deserializeCustomization(customization),
+    oauth: deserializeOauth(oauth)
+  };
+}
+
+/*
+ NOTE: Function is used only for serialize-deserialize cycle in Essence class.
+ Now it's hard to remove that functionality but in the end, Essence does not need to serialize itself.
+*/
+export function serialize(appSettings: ClientAppSettings): SerializedAppSettings {
+  const { clientTimeout, version, customization, oauth } = appSettings;
+  const { visualizationColors, messages, customLogoSvg, hasUrlShortener, locale, headerBackground, sentryDSN, timezones, externalViews } = customization;
+
+  return {
+    clientTimeout,
+    version,
+    oauth,
+    customization: {
+      visualizationColors,
+      messages,
+      customLogoSvg,
+      locale,
+      hasUrlShortener,
+      headerBackground,
+      sentryDSN,
+      timezones: timezones.map(t => t.toJS()),
+      externalViews
+    }
   };
 }

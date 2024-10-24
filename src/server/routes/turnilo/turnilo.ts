@@ -16,12 +16,12 @@
  */
 
 import { Request, Response, Router } from "express";
-import { AppSettings } from "../../../common/models/app-settings/app-settings";
 import { getTitle } from "../../../common/models/customization/customization";
-import { SETTINGS_MANAGER } from "../../config";
+import { SettingsManager } from "../../utils/settings-manager/settings-manager";
 import { mainLayout } from "../../views";
 
-export function turniloRouter(appSettings: AppSettings, version: string) {
+export function turniloRouter(settings: Pick<SettingsManager, "appSettings" | "getTimekeeper">, version: string) {
+  const appSettings = settings.appSettings;
 
   const router = Router();
 
@@ -31,7 +31,7 @@ export function turniloRouter(appSettings: AppSettings, version: string) {
         version,
         title: getTitle(appSettings.customization, version),
         appSettings,
-        timekeeper: SETTINGS_MANAGER.getTimekeeper()
+        timekeeper: settings.getTimekeeper()
       }));
     } catch (e) {
       res.status(400).send({ error: "Couldn't load Riveroll Crystal Ball Application" });

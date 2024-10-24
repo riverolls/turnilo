@@ -13,33 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { DEFAULT_LIMIT } from "../../limit/limit"
-import { NORMAL_COLORS } from "../../models/colors/colors";
+import { DEFAULT_LIMIT } from "../../limit/limit";
+import { colorSplitLimits, VisualizationColors } from "../../models/colors/colors";
 import { Dimension } from "../../models/dimension/dimension";
 import { SeriesList } from "../../models/series-list/series-list";
 import { DimensionSort, SeriesSort, SortDirection } from "../../models/sort/sort";
 import { Split, SplitType } from "../../models/split/split";
 import { thread } from "../functional/functional";
 
-const COLORS_COUNT = NORMAL_COLORS.length;
-
-export function adjustColorSplit(split: Split, dimension: Dimension, series: SeriesList): Split {
-  return thread(
-    split,
-    adjustSort(dimension, series),
-    // TODO: This magic 5 will disappear in #756
-    adjustFiniteLimit([5, COLORS_COUNT], COLORS_COUNT)
-  );
+export function adjustColorSplit(
+  split: Split,
+  dimension: Dimension,
+  series: SeriesList,
+  visualizationColors: VisualizationColors
+): Split {
+  const colorsCount = visualizationColors.series.length;
+  return thread(split, adjustSort(dimension, series), adjustFiniteLimit(colorSplitLimits(colorsCount), colorsCount));
 }
 
-export function adjustContinuousTimeSplit(split: Split): Split {
+export function adjustContinuousSplit(split: Split): Split {
   const { reference } = split;
-  return split
-    .changeLimit(null)
-    .changeSort(new DimensionSort({
+  return split.changeLimit(null).changeSort(
+    new DimensionSort({
       reference,
-      direction: SortDirection.ascending
-    }));
+      direction: SortDirection.ascending,
+    })
+  );
 }
 
 export function adjustLimit({ kind, limits }: Dimension) {
@@ -50,20 +49,18 @@ export function adjustLimit({ kind, limits }: Dimension) {
 }
 
 export function adjustFiniteLimit(availableLimits: number[], defaultLimit = availableLimits[0]) {
-  return function(split: Split): Split {
+  return (split: Split): Split => {
     const { limit } = split;
     // return availableLimits.indexOf(limit) === -1
     //   ? split.changeLimit(defaultLimit)
     //   : split;
-    
-    return !split.limit
-      ? split.changeLimit(DEFAULT_LIMIT)
-      : split;
+
+    return !split.limit ? split.changeLimit(DEFAULT_LIMIT) : split;
   };
 }
 
 export function adjustSort(dimension: Dimension, series: SeriesList, availableDimensions = [dimension.name]) {
-  return function(split: Split): Split {
+  return (split: Split): Split => {
     const { sort } = split;
     if (sort instanceof SeriesSort) return split;
     if (availableDimensions.indexOf(sort.reference) !== -1) return split;
@@ -71,27 +68,35 @@ export function adjustSort(dimension: Dimension, series: SeriesList, availableDi
     const { sortStrategy } = dimension;
     if (sortStrategy) {
       if (sortStrategy === "self" || split.reference === sortStrategy) {
-        return split.changeSort(new DimensionSort({
-          reference: split.reference,
-          direction
-        }));
+        return split.changeSort(
+          new DimensionSort({
+            reference: split.reference,
+            direction,
+          })
+        );
       }
       if (series.hasMeasureSeries(sortStrategy)) {
-        return split.changeSort(new SeriesSort({
-          reference: sortStrategy,
-          direction
-        }));
+        return split.changeSort(
+          new SeriesSort({
+            reference: sortStrategy,
+            direction,
+          })
+        );
       }
     }
     if (split.type === SplitType.string) {
-      return split.changeSort(new SeriesSort({
-        reference: series.series.first().reference,
-        direction: SortDirection.descending
-      }));
+      return split.changeSort(
+        new SeriesSort({
+          reference: series.series.first().reference,
+          direction: SortDirection.descending,
+        })
+      );
     }
-    return split.changeSort(new DimensionSort({
-      reference: split.reference,
-      direction
-    }));
+    return split.changeSort(
+      new DimensionSort({
+        reference: split.reference,
+        direction,
+      })
+    );
   };
 }

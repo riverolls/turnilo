@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import * as React from "react";
+import React from "react";
 import { ChartProps } from "../../../common/models/chart-props/chart-props";
 import { Unary } from "../../../common/utils/functional/functional";
 import { MIN_DIMENSION_WIDTH, SEGMENT_WIDTH } from "../../components/tabular-scroller/dimensions";
@@ -22,7 +22,6 @@ import { withProps } from "../../utils/react/with-props";
 import { ChartPanel, VisualizationProps } from "../../views/cube-view/center-panel/center-panel";
 import "./grid.scss";
 import { InteractionController } from "./interaction-controller";
-import makeQuery from "./make-query";
 import { ScrolledGrid } from "./scrolled-grid";
 import { GridVisualizationControls } from "./visualization-controls";
 
@@ -31,7 +30,7 @@ interface GridProps extends ChartProps {
   segmentWidth: number;
 }
 
-const Grid: React.SFC<GridProps> = props => {
+const Grid: React.FunctionComponent<GridProps> = props => {
   const { essence, segmentWidth, setSegmentWidth, stage, clicker, data } = props;
   const availableWidth = stage.width - MIN_DIMENSION_WIDTH;
 
@@ -67,7 +66,7 @@ interface GridVisualizationState {
   segmentWidth: number;
 }
 
-export class GridVisualization extends React.Component<VisualizationProps, GridVisualizationState> {
+export default class GridVisualization extends React.Component<VisualizationProps, GridVisualizationState> {
   state: GridVisualizationState = {
     segmentWidth: SEGMENT_WIDTH
   };
@@ -81,7 +80,6 @@ export class GridVisualization extends React.Component<VisualizationProps, GridV
     return <React.Fragment>
       <GridVisualizationControls {...this.props} />
       <ChartPanel {...this.props}
-                  queryFactory={makeQuery}
                   chartComponent={withProps(Grid, { segmentWidth, setSegmentWidth: this.setSegmentWidth })}/>
     </React.Fragment>;
   }

@@ -15,15 +15,23 @@
  */
 
 import { NamedArray } from "immutable-class";
+import { Logger } from "../../logger/logger";
 import { isTruthy } from "../../utils/general/general";
-import { Cluster, ClusterJS } from "../cluster/cluster";
+import {
+  ClientCluster,
+  Cluster,
+  ClusterJS,
+  fromConfig as clusterFromConfig,
+  serialize as serializeCluster,
+  SerializedCluster
+} from "../cluster/cluster";
 import { findCluster } from "../cluster/find-cluster";
 import {
   ClientDataCube,
   DataCube,
   DataCubeJS,
   fromConfig as dataCubeFromConfig,
-  serialize as dataCubeSerialize,
+  serialize as serializeDataCube,
   SerializedDataCube
 } from "../data-cube/data-cube";
 import { isQueryable, QueryableDataCube } from "../data-cube/queryable-data-cube";
@@ -39,12 +47,12 @@ export interface Sources {
 }
 
 export interface SerializedSources {
-  clusters: ClusterJS[]; // SerializedCluster[]
+  clusters: SerializedCluster[];
   dataCubes: SerializedDataCube[];
 }
 
 export interface ClientSources {
-  readonly clusters: Cluster[];
+  readonly clusters: ClientCluster[];
   readonly dataCubes: ClientDataCube[];
 }
 
@@ -54,13 +62,13 @@ interface ClustersConfig {
   brokerHost?: string;
 }
 
-function readClusters({ clusters, druidHost, brokerHost }: ClustersConfig): Cluster[] {
-  if (Array.isArray(clusters)) return clusters.map(cluster => Cluster.fromJS(cluster));
+function readClusters({ clusters, druidHost, brokerHost }: ClustersConfig, logger: Logger): Cluster[] {
+  if (Array.isArray(clusters)) return clusters.map(cluster => clusterFromConfig(cluster, logger));
   if (isTruthy(druidHost) || isTruthy(brokerHost)) {
-    return [Cluster.fromJS({
+    return [clusterFromConfig({
       name: "druid",
       url: druidHost || brokerHost
-    })];
+    }, logger)];
   }
   return [];
 }
@@ -70,17 +78,17 @@ interface DataCubesConfig {
   dataSources?: DataCubeJS[];
 }
 
-function readDataCubes({ dataCubes, dataSources }: DataCubesConfig, clusters: Cluster[]): DataCube[] {
+function readDataCubes({ dataCubes, dataSources }: DataCubesConfig, clusters: Cluster[], logger: Logger): DataCube[] {
   const cubes = dataCubes || dataSources || [];
   return cubes.map(cube => {
     const cluster = findCluster(cube, clusters);
-    return dataCubeFromConfig(cube, cluster);
+    return dataCubeFromConfig(cube, cluster, logger);
   });
 }
 
-export function fromConfig(config: SourcesJS): Sources {
-  const clusters = readClusters(config);
-  const dataCubes = readDataCubes(config, clusters);
+export function fromConfig(config: SourcesJS, logger: Logger): Sources {
+  const clusters = readClusters(config, logger);
+  const dataCubes = readDataCubes(config, clusters, logger);
 
   return {
     clusters,
@@ -89,14 +97,14 @@ export function fromConfig(config: SourcesJS): Sources {
 }
 
 export function serialize({
-                                   clusters: serverClusters,
-                                   dataCubes: serverDataCubes
-                                 }: Sources): SerializedSources {
-  const clusters = serverClusters.map(c => c.toClientCluster().toJS());
+                            clusters: serverClusters,
+                            dataCubes: serverDataCubes
+                          }: Sources): SerializedSources {
+  const clusters = serverClusters.map(serializeCluster);
 
   const dataCubes = serverDataCubes
     .filter(dc => isQueryable(dc))
-    .map(dataCubeSerialize);
+    .map(serializeDataCube);
 
   return {
     clusters,
@@ -123,6 +131,6 @@ export function addOrUpdateDataCube(sources: Sources, dataCube: QueryableDataCub
 export function deleteDataCube(sources: Sources, dataCube: DataCube): Sources {
   return {
     ...sources,
-    dataCubes: sources.dataCubes.filter(dc => dc.name === dataCube.name)
+    dataCubes: sources.dataCubes.filter(dc => dc.name !== dataCube.name)
   };
 }

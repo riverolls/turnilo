@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-import * as React from "react";
+import React from "react";
+import { getTimeDimensionReference } from "../../../common/models/data-cube/data-cube";
 import { Dimension } from "../../../common/models/dimension/dimension";
 import { findDimensionByName } from "../../../common/models/dimension/dimensions";
 import { DragPosition } from "../../../common/models/drag-position/drag-position";
@@ -33,7 +34,6 @@ import { CubeContext, CubeContextValue } from "../../views/cube-view/cube-contex
 import { PartialFilter } from "../../views/cube-view/partial-tiles-provider";
 import { DragIndicator } from "../drag-indicator/drag-indicator";
 import { AddFilter } from "./add-filter";
-import "./filter-tile.scss";
 import { FilterTiles } from "./filter-tiles";
 
 interface FilterTilesRowProps {
@@ -168,7 +168,7 @@ export class FilterTilesRow extends React.Component<FilterTilesRowProps, FilterT
     let tryingToReplaceTime = false;
     if (position.isReplace()) {
       const targetClause = filter.clauses.get(position.replace);
-      tryingToReplaceTime = targetClause && targetClause.reference === dataCube.timeAttribute;
+      tryingToReplaceTime = targetClause && targetClause.reference === getTimeDimensionReference(dataCube);
       if (tryingToReplaceTime) return;
     }
     addPartialFilter(dimension, position);
@@ -200,7 +200,7 @@ export class FilterTilesRow extends React.Component<FilterTilesRowProps, FilterT
     const { dragPosition, openedClause, overflowOpen } = this.state;
     const { menuStage, timekeeper, locale, partialFilter, removePartialFilter } = this.props;
     const { essence, clicker } = this.context;
-    return <div className="filter-tile" onDragEnter={this.dragEnter}>
+    return <div className="tile-row filter-tile-row" onDragEnter={this.dragEnter}>
       <div className="title">{STRINGS.filter}</div>
       <div className="items" ref={this.items}>
         <FilterTiles

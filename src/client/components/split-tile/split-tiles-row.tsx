@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import * as React from "react";
+import React from "react";
 import { Clicker } from "../../../common/models/clicker/clicker";
 import { Dimension } from "../../../common/models/dimension/dimension";
 import { findDimensionByName } from "../../../common/models/dimension/dimensions";
@@ -29,7 +29,6 @@ import { getMaxItems } from "../../utils/pill-tile/pill-tile";
 import { DragIndicator } from "../drag-indicator/drag-indicator";
 import { AddSplit } from "./add-split";
 import { DefaultSplitTile, SplitTileBaseProps } from "./split-tile";
-import "./split-tile.scss";
 import { SplitTiles } from "./split-tiles";
 
 export interface SplitTilesRowBaseProps {
@@ -48,7 +47,7 @@ interface SplitTilesRowState {
   overflowOpen?: boolean;
 }
 
-export const DefaultSplitTilesRow: React.SFC<SplitTilesRowBaseProps> = props =>
+export const DefaultSplitTilesRow: React.FunctionComponent<SplitTilesRowBaseProps> = props =>
   <SplitTilesRow {...props} splitTileComponent={DefaultSplitTile} />;
 
 export class SplitTilesRow extends React.Component<SplitTilesRowProps, SplitTilesRowState> {
@@ -201,7 +200,7 @@ export class SplitTilesRow extends React.Component<SplitTilesRowProps, SplitTile
   render() {
     const { essence, menuStage, splitTileComponent } = this.props;
     const { dragPosition, overflowOpen, openedSplit } = this.state;
-    return <div className="split-tile" onDragEnter={this.dragEnter}>
+    return <div className="tile-row split-tile-row" onDragEnter={this.dragEnter}>
       <div className="title">{STRINGS.split}</div>
       <div className="items" ref={this.items}>
         <SplitTiles

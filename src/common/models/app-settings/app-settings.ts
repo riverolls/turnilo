@@ -16,19 +16,20 @@
  */
 
 import { Executor } from "plywood";
+import { Logger } from "../../logger/logger";
 import {
   ClientCustomization,
   Customization,
   CustomizationJS,
   fromConfig as customizationFromConfig,
-  serialize as customizationSerialize,
+  serialize as serializeCustomization,
   SerializedCustomization
 } from "../customization/customization";
 import {
   fromConfig as oauthFromConfig,
   Oauth,
   OauthJS,
-  serialize as oauthSerialize,
+  serialize as serializeOauth,
   SerializedOauth
 } from "../oauth/oauth";
 
@@ -62,10 +63,10 @@ export interface ClientAppSettings {
   readonly oauth: Oauth;
 }
 
-export function fromConfig(config: AppSettingsJS): AppSettings {
+export function fromConfig(config: AppSettingsJS, logger: Logger): AppSettings {
   const clientTimeout = config.clientTimeout === undefined ? DEFAULT_CLIENT_TIMEOUT : config.clientTimeout;
   const version = config.version || 0;
-  const customization = customizationFromConfig(config.customization);
+  const customization = customizationFromConfig(config.customization, logger);
   const oauth = oauthFromConfig(config.oauth);
 
   return {
@@ -76,14 +77,14 @@ export function fromConfig(config: AppSettingsJS): AppSettings {
   };
 }
 
-export const EMPTY_APP_SETTINGS = fromConfig({});
+export const emptySettings = (logger: Logger) => fromConfig({}, logger);
 
 export function serialize({ oauth, clientTimeout, customization, version }: AppSettings): SerializedAppSettings {
   return {
     clientTimeout,
     version,
-    customization: customizationSerialize(customization),
-    oauth: oauthSerialize(oauth)
+    customization: serializeCustomization(customization),
+    oauth: serializeOauth(oauth)
   };
 }
 

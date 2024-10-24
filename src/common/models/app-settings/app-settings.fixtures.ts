@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+import { DEFAULT_COLORS } from "../colors/colors";
 import { LOCALES } from "../locale/locale";
 import { AppSettings, ClientAppSettings } from "./app-settings";
 
@@ -24,7 +25,9 @@ export const clientAppSettings: ClientAppSettings = {
     hasUrlShortener: false,
     externalViews: [],
     timezones: [],
-    locale: LOCALES["en-US"]
+    locale: LOCALES["en-US"],
+    messages: {},
+    visualizationColors: DEFAULT_COLORS
   },
   oauth: { status: "disabled" },
   clientTimeout: 1000
@@ -36,7 +39,9 @@ export const appSettings: AppSettings = {
     timezones: [],
     locale: LOCALES["en-US"],
     externalViews: [],
-    cssVariables: {}
+    cssVariables: {},
+    messages: {},
+    visualizationColors: DEFAULT_COLORS
   },
   oauth: { status: "disabled" },
   version: 0

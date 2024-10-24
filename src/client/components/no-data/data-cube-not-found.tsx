@@ -14,12 +14,21 @@
  * limitations under the License.
  */
 
-import * as React from "react";
+import React from "react";
+import { ClientCustomization } from "../../../common/models/customization/customization";
 import { navigateToHome } from "../../applications/turnilo-application/view";
+import { STRINGS } from "../../config/constants";
+import { MarkdownNode } from "../markdown-node/markdown-node";
 import { MessagePanel, MessagePanelAction } from "../message-panel/message-panel";
 
-export const DataCubeNotFound: React.SFC<{}> = () => {
-  return <MessagePanel title="DataCube not found">
+interface DataCubeNotFoundProps {
+  customization: ClientCustomization;
+}
+
+export const DataCubeNotFound: React.FunctionComponent<DataCubeNotFoundProps> = ({ customization }) => {
+  const { dataCubeNotFound } = customization.messages;
+  const message = dataCubeNotFound && <MarkdownNode markdown={dataCubeNotFound} />;
+  return <MessagePanel title={STRINGS.noDataCube} message={message}>
     <MessagePanelAction action={navigateToHome}
                         label="Go back to data cubes list"/>
   </MessagePanel>;

@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-const common = require("./webpack.common")
-const merge = require("webpack-merge")
-const webpack = require("webpack")
-const hotMiddlewareScript = "webpack-hot-middleware/client"
-const { codeInspectorPlugin } = require("code-inspector-plugin")
+const { config: commonConfig } = require("./webpack.common");
+const merge = require("webpack-merge");
+const webpack = require("webpack");
+const hotMiddlewareScript = "webpack-hot-middleware/client";
+const { codeInspectorPlugin } = require("code-inspector-plugin");
 
-module.exports = merge.smart(common, {
+module.exports = merge.smart(commonConfig, {
   mode: "development",
   entry: {
     main: [hotMiddlewareScript, "./src/client/main.tsx"],
@@ -38,4 +38,4 @@ module.exports = merge.smart(common, {
       bundler: "webpack",
     }),
   ],
-})
+});

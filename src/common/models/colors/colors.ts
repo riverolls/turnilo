@@ -15,7 +15,9 @@
  * limitations under the License.
  */
 
-export const NORMAL_COLORS = [
+import { hsl, range, rgb } from "d3";
+
+export const DEFAULT_SERIES_COLORS = [
   "#2D95CA",
   "#EFB925",
   "#DA4E99",
@@ -26,7 +28,55 @@ export const NORMAL_COLORS = [
   "#218C35",
   "#B0B510",
   "#904064",
-  '#55ACEE', '#FF9945', '#4CDFC0', '#FACF2A', '#788CF0', '#BAADF0', '#2AB885', '#FAC88E', '#5266D1', '#F0938A',  '#A380BF', '#BF7A11', '#FCF53D', '#D96868', '#73D182', ' #B08566', '#7A57B3', '#68D9F0', '#B1CC64', '#D49E37'
+  "#55ACEE",
+  "#FF9945",
+  "#4CDFC0",
+  "#FACF2A",
+  "#788CF0",
+  "#BAADF0",
+  "#2AB885",
+  "#FAC88E",
+  "#5266D1",
+  "#F0938A",
+  "#A380BF",
+  "#BF7A11",
+  "#FCF53D",
+  "#D96868",
+  "#73D182",
+  " #B08566",
+  "#7A57B3",
+  "#68D9F0",
+  "#B1CC64",
+  "#D49E37",
 ];
+
+export const DEFAULT_MAIN_COLOR = "#FF5900";
+
+export const DEFAULT_COLORS: VisualizationColors = {
+  main: DEFAULT_MAIN_COLOR,
+  series: DEFAULT_SERIES_COLORS,
+};
+
+export interface VisualizationColors {
+  main: string;
+  series: string[];
+}
+
+export function lightMain(colors: VisualizationColors): string {
+  return hsl(colors.main).brighter(1.3).toString();
+}
+
+export function alphaMain(colors: VisualizationColors): string {
+  const { r, g, b } = rgb(colors.main);
+  return `rgba(${r}, ${g}, ${b}, ${0.14})`;
+}
+
+export function colorSplitLimits(max: number): number[] {
+  const limits = range(5, max, 5);
+  if (limits[limits.length - 1] < max) {
+    return [...limits, max];
+  }
+  return limits;
+}
 
 // '#55ACEE', '#FF9945', '#4CDFC0', '#FACF2A', '#788CF0', '#BAADF0', '#2AB885', '#FAC88E', '#5266D1', '#F0938A',  '#A380BF', '#BF7A11', '#FCF53D', '#D96868', '#73D182', ' #B08566', '#7A57B3', '#68D9F0', '#B1CC64', '#D49E37'

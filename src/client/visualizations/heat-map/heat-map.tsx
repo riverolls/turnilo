@@ -23,45 +23,53 @@
 import { Timezone } from "chronoshift";
 import memoizeOne from "memoize-one";
 import { Dataset } from "plywood";
-import * as React from "react";
+import React from "react";
 import { ChartProps } from "../../../common/models/chart-props/chart-props";
 import { ConcreteSeries } from "../../../common/models/series/concrete-series";
 import { Split } from "../../../common/models/split/split";
-import makeQuery from "../../../common/utils/query/visualization-query";
 import { HEAT_MAP_MANIFEST } from "../../../common/visualization-manifests/heat-map/heat-map";
 import { SPLIT } from "../../config/constants";
 import { fillDatasetWithMissingValues } from "../../utils/dataset/sparse-dataset/dataset";
-import { ChartPanel, DefaultVisualizationControls, VisualizationProps } from "../../views/cube-view/center-panel/center-panel";
+import {
+  ChartPanel,
+  DefaultVisualizationControls,
+  VisualizationProps
+} from "../../views/cube-view/center-panel/center-panel";
+import { SettingsContext, SettingsContextValue } from "../../views/cube-view/settings-context";
 import "./heat-map.scss";
 import { LabelledHeatmap, TILE_SIZE } from "./labeled-heatmap";
 import scales from "./utils/scales";
 
-export function HeatMapVisualization(props: VisualizationProps) {
+export default function HeatMapVisualization(props: VisualizationProps) {
   return <React.Fragment>
     <DefaultVisualizationControls {...props} />
-    <ChartPanel {...props} queryFactory={makeQuery} chartComponent={HeatMap}/>
+    <ChartPanel {...props} chartComponent={HeatMap}/>
   </React.Fragment>;
 }
 
 class HeatMap extends React.Component<ChartProps> {
+  static contextType = SettingsContext;
   protected className = HEAT_MAP_MANIFEST.name;
+
+  context: SettingsContextValue;
 
   getScales = memoizeOne(scales);
   prepareDataset = memoizeOne(
     (data: Dataset, series: ConcreteSeries, split: Split, timezone: Timezone) =>
-    fillDatasetWithMissingValues((data.data[0][SPLIT] as Dataset), series.plywoodKey(), split, timezone),
+      fillDatasetWithMissingValues((data.data[0][SPLIT] as Dataset), series.plywoodKey(), split, timezone),
     ([nextData], [oldData]) => nextData === oldData);
 
   render() {
+    const { customization: { visualizationColors } } = this.context;
     const { essence, stage, highlight, data, saveHighlight, acceptHighlight, dropHighlight } = this.props;
     const { timezone, splits: { splits } } = essence;
     const series = essence.getConcreteSeries().first();
     const secondSplit = splits.get(1);
     const dataset = this.prepareDataset(data, series, secondSplit, timezone);
 
-    const { x, y, color } = this.getScales(dataset.data, TILE_SIZE, series);
+    const { x, y, color } = this.getScales(dataset.data, TILE_SIZE, visualizationColors.main, series);
 
-    return <div className="heatmap-container" style={{ maxHeight: stage.height }}>
+    return <div className="heatmap-container" style={{ height: stage.height }}>
       <LabelledHeatmap
         stage={stage}
         dataset={dataset.data}

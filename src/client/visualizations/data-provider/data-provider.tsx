@@ -15,7 +15,7 @@
  */
 
 import { Dataset, Expression } from "plywood";
-import * as React from "react";
+import React from "react";
 import {
   DatasetRequest,
   DatasetRequestStatus,
@@ -32,8 +32,8 @@ import { Binary, debounceWithPromise, Unary } from "../../../common/utils/functi
 import { Loader } from "../../components/loader/loader";
 import { QueryError } from "../../components/query-error/query-error";
 import { reportError } from "../../utils/error-reporter/error-reporter";
+import { VisualizationQuery } from "../../views/cube-view/api-context";
 import { DownloadableDataset, DownloadableDatasetContext } from "../../views/cube-view/downloadable-dataset-context";
-
 export type QueryFactory = Binary<Essence, Timekeeper, Expression>;
 
 interface DataProviderProps {
@@ -42,6 +42,7 @@ interface DataProviderProps {
   timekeeper: Timekeeper;
   stage: Stage;
   queryFactory: QueryFactory;
+  query: VisualizationQuery;
   children: Unary<Dataset, React.ReactNode>;
 }
 
@@ -67,7 +68,7 @@ export class DataProvider extends React.Component<DataProviderProps, DataProvide
     this.debouncedCallExecutor.cancel();
   }
 
-  componentWillReceiveProps(nextProps: DataProviderProps) {
+  UNSAFE_componentWillReceiveProps(nextProps: DataProviderProps) {
     if (this.shouldFetchData(nextProps) && this.visualisationNotResized(nextProps)) {
       const { essence, timekeeper, queryFactory } = nextProps;
       const hadDataLoaded = isLoaded(this.state.dataset);
@@ -96,14 +97,13 @@ export class DataProvider extends React.Component<DataProviderProps, DataProvide
     this.lastQueryEssence = essence;
     return this.debouncedCallExecutor(essence, timekeeper, queryFactory);
   }
-
   private callExecutor = (essence: Essence, timekeeper: Timekeeper, queryFactory: QueryFactory): Promise<DatasetRequest | null> =>
     essence.dataCube.executor(queryFactory(essence, timekeeper), { timezone: essence.timezone })
       .then((dataset: Dataset) => {
-          // signal out of order requests with null
-          if (!this.wasUsedForLastQuery(essence)) return null;
-          return loaded(dataset);
-        },
+        // signal out of order requests with null
+        if (!this.wasUsedForLastQuery(essence)) return null;
+        return loaded(dataset);
+      },
         err => {
           // signal out of order requests with null
           if (!this.wasUsedForLastQuery(essence)) return null;
@@ -159,9 +159,9 @@ export class DataProvider extends React.Component<DataProviderProps, DataProvide
     const { dataset } = this.state;
     switch (dataset.status) {
       case DatasetRequestStatus.LOADING:
-        return <Loader/>;
+        return <Loader />;
       case DatasetRequestStatus.ERROR:
-        return <QueryError error={dataset.error}/>;
+        return <QueryError error={dataset.error} />;
       case DatasetRequestStatus.LOADED:
         return children(dataset.dataset);
     }

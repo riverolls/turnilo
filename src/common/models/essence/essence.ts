@@ -17,17 +17,21 @@
 
 import { Timezone } from "chronoshift";
 import { List, OrderedSet, Record as ImmutableRecord, Set } from "immutable";
-import { serialize } from "../../../client/deserializers/data-cube";
+import { serialize as serializeAppSettings } from "../../../client/deserializers/app-settings";
+import { serialize as serializeDataCube } from "../../../client/deserializers/data-cube";
 import { thread } from "../../utils/functional/functional";
 import nullableEquals from "../../utils/immutable-utils/nullable-equals";
 import { visualizationIndependentEvaluator } from "../../utils/rules/visualization-independent-evaluator";
+import { formatUrlSafeDateTime } from "../../utils/time/time";
 import { MANIFESTS } from "../../visualization-manifests";
+import { ClientAppSettings } from "../app-settings/app-settings";
 import {
   ClientDataCube,
   getDefaultFilter,
   getDefaultSeries,
   getDefaultSplits,
-  getMaxTime
+  getMaxTime,
+  getTimeDimension
 } from "../data-cube/data-cube";
 import { DateRange } from "../date-range/date-range";
 import { Dimension } from "../dimension/dimension";
@@ -56,7 +60,7 @@ import { Resolve, VisualizationManifest } from "../visualization-manifest/visual
 import { VisualizationSettings } from "../visualization-settings/visualization-settings";
 
 function constrainDimensions(dimensions: OrderedSet<string>, dataCube: ClientDataCube): OrderedSet<string> {
-  return <OrderedSet<string>> dimensions.filter(dimensionName => Boolean(findDimensionByName(dataCube.dimensions, dimensionName)));
+  return dimensions.filter(dimensionName => Boolean(findDimensionByName(dataCube.dimensions, dimensionName))) as OrderedSet<string>;
 }
 
 export interface VisualizationAndResolve {
@@ -78,6 +82,7 @@ export enum VisStrategy {
 type DimensionId = string;
 
 export interface EssenceValue {
+  appSettings: ClientAppSettings;
   dataCube: ClientDataCube;
   visualization: VisualizationManifest;
   visualizationSettings: VisualizationSettings | null;
@@ -92,6 +97,7 @@ export interface EssenceValue {
 }
 
 const defaultEssence: EssenceValue = {
+  appSettings: null,
   dataCube: null,
   visualization: null,
   visualizationSettings: null,
@@ -111,18 +117,18 @@ export interface EffectiveFilterOptions {
 }
 
 type VisualizationResolverResult = Pick<EssenceValue, "splits" | "visualization" | "visResolve">;
-type VisualizationResolverParameters = Pick<EssenceValue, "visualization" | "dataCube" | "splits" | "series">;
+type VisualizationResolverParameters = Pick<EssenceValue, "visualization" | "dataCube" | "splits" | "series" | "appSettings">;
 
-function resolveVisualization({ visualization, dataCube, splits, series }: VisualizationResolverParameters): VisualizationResolverResult {
+function resolveVisualization({ visualization, dataCube, splits, series, appSettings }: VisualizationResolverParameters): VisualizationResolverResult {
 
   let visResolve: Resolve;
   // Place vis here because it needs to know about splits and colors (and maybe later other things)
   if (!visualization) {
-    const visAndResolve = Essence.getBestVisualization(dataCube, splits, series, null);
+    const visAndResolve = Essence.getBestVisualization(appSettings, dataCube, splits, series, null);
     visualization = visAndResolve.visualization;
   }
 
-  const ruleVariables = { dataCube, series, splits, isSelectedVisualization: true };
+  const ruleVariables = { appSettings, dataCube, series, splits, isSelectedVisualization: true };
   visResolve = visualization.evaluateRules(ruleVariables);
   if (visResolve.isAutomatic()) {
     const adjustment = visResolve.adjustment;
@@ -143,6 +149,7 @@ function resolveVisualization({ visualization, dataCube, splits, series }: Visua
 export class Essence extends ImmutableRecord<EssenceValue>(defaultEssence) {
 
   static getBestVisualization(
+    appSettings: ClientAppSettings,
     dataCube: ClientDataCube,
     splits: Splits,
     series: SeriesList,
@@ -150,7 +157,7 @@ export class Essence extends ImmutableRecord<EssenceValue>(defaultEssence) {
   ): VisualizationAndResolve {
     const visAndResolves = MANIFESTS.map(visualization => {
       const isSelectedVisualization = visualization === currentVisualization;
-      const ruleVariables = { dataCube, splits, series, isSelectedVisualization };
+      const ruleVariables = { appSettings, dataCube, splits, series, isSelectedVisualization };
       return {
         visualization,
         resolve: visualization.evaluateRules(ruleVariables)
@@ -160,8 +167,9 @@ export class Essence extends ImmutableRecord<EssenceValue>(defaultEssence) {
     return visAndResolves.sort((vr1, vr2) => Resolve.compare(vr1.resolve, vr2.resolve))[0];
   }
 
-  static fromDataCube(dataCube: ClientDataCube): Essence {
+  static fromDataCube(dataCube: ClientDataCube, appSettings: ClientAppSettings): Essence {
     const essence = new Essence({
+      appSettings,
       dataCube,
       visualization: null,
       visualizationSettings: null,
@@ -185,12 +193,10 @@ export class Essence extends ImmutableRecord<EssenceValue>(defaultEssence) {
   }
 
   static timeFilter(filter: Filter, dataCube: ClientDataCube): TimeFilterClause {
-    const timeFilter = filter.clauseForReference(dataCube.timeAttribute);
+    const timeFilter = filter.getClauseForDimension(getTimeDimension(dataCube));
     if (!isTimeFilter(timeFilter)) throw new Error(`Unknown time filter: ${timeFilter}`);
     return timeFilter;
   }
-
-  public visResolve: Resolve;
 
   constructor(parameters: EssenceValue) {
     const {
@@ -240,9 +246,10 @@ export class Essence extends ImmutableRecord<EssenceValue>(defaultEssence) {
 
   public toJS() {
     return {
+      appSettings: serializeAppSettings(this.appSettings),
       visualization: this.visualization,
       visualizationSettings: this.visualizationSettings,
-      dataCube: serialize(this.dataCube),
+      dataCube: serializeDataCube(this.dataCube),
       timezone: this.timezone.toJS(),
       filter: this.filter && this.filter.toJS(),
       splits: this.splits && this.splits.toJS(),
@@ -255,7 +262,7 @@ export class Essence extends ImmutableRecord<EssenceValue>(defaultEssence) {
   }
 
   public getTimeDimension(): Dimension {
-    return findDimensionByName(this.dataCube.dimensions, this.dataCube.timeAttribute);
+    return getTimeDimension(this.dataCube);
   }
 
   public evaluateSelection(filter: TimeFilterClause, timekeeper: Timekeeper): FixedTimeFilterClause {
@@ -437,9 +444,9 @@ export class Essence extends ImmutableRecord<EssenceValue>(defaultEssence) {
     }
 
     function adjustVisualization(essence: Essence): Essence {
-      const { dataCube, visualization, splits, series } = essence;
+      const { dataCube, visualization, splits, series, appSettings } = essence;
       const { visualization: newVis } = Essence.getBestVisualization(
-        dataCube, splits, series, visualization);
+        appSettings, dataCube, splits, series, visualization);
       if (newVis === visualization) return essence;
       return essence.changeVisualization(newVis, newVis.visualizationSettings.defaults);
     }
@@ -503,7 +510,7 @@ export class Essence extends ImmutableRecord<EssenceValue>(defaultEssence) {
   }
 
   public changeSplits(splits: Splits, strategy: VisStrategy): Essence {
-    const { splits: oldSplits, dataCube, visualization, visResolve, filter, series } = this;
+    const { splits: oldSplits, appSettings, dataCube, visualization, visResolve, filter, series } = this;
 
     const newSplits = this.setSortOnSplits(splits).updateWithFilter(filter, dataCube.dimensions);
 
@@ -520,7 +527,7 @@ export class Essence extends ImmutableRecord<EssenceValue>(defaultEssence) {
 
     function adjustVisualization(essence: Essence): Essence {
       if (adjustStrategy(strategy) !== VisStrategy.FairGame) return essence;
-      const { visualization: newVis } = Essence.getBestVisualization(dataCube, newSplits, series, visualization);
+      const { visualization: newVis } = Essence.getBestVisualization(appSettings, dataCube, newSplits, series, visualization);
       if (newVis === visualization) return essence;
       return essence.changeVisualization(newVis, newVis.visualizationSettings.defaults);
     }
@@ -613,9 +620,10 @@ export class Essence extends ImmutableRecord<EssenceValue>(defaultEssence) {
       .resolveVisualizationAndUpdate();
   }
 
+  // NOTE: Pass appsettings to all callers. Probably all callers are from Clicker object
   public resolveVisualizationAndUpdate() {
-    const { visualization, splits, dataCube, series } = this;
-    const result = resolveVisualization({ splits, dataCube, visualization, series });
+    const { visualization, splits, dataCube, series, appSettings } = this;
+    const result = resolveVisualization({ appSettings, dataCube, visualization, splits, series });
     return this
       .set("visResolve", result.visResolve)
       .set("visualization", result.visualization)
@@ -649,5 +657,13 @@ export class Essence extends ImmutableRecord<EssenceValue>(defaultEssence) {
 
   public getPinnedSortSeries(): ConcreteSeries {
     return this.findConcreteSeries(this.pinnedSort);
+  }
+
+  public description(timekeeper: Timekeeper): string {
+    const timeFilter = this.currentTimeFilter(timekeeper);
+    const { start, end } = timeFilter.values.first();
+    const timezone = this.timezone;
+
+    return `${this.dataCube.name}_${formatUrlSafeDateTime(start, timezone)}_${formatUrlSafeDateTime(end, timezone)}`;
   }
 }

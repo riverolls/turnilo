@@ -16,7 +16,7 @@
  */
 
 import { expect } from "chai";
-import * as React from "react";
+import React from "react";
 import * as ReactDOM from "react-dom";
 import * as TestUtils from "react-dom/test-utils";
 import { EssenceFixtures } from "../../../common/models/essence/essence.fixtures";
@@ -25,7 +25,7 @@ import { DimensionListTile } from "./dimension-list-tile";
 
 describe("DimensionListTile", () => {
   it("adds the correct class", () => {
-    var renderedComponent = renderIntoDocument(
+    const renderedComponent = renderIntoDocument(
       <DimensionListTile
         clicker={null}
         essence={EssenceFixtures.wikiTotals()}

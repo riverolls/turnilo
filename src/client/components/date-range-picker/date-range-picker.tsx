@@ -17,7 +17,7 @@
 
 import { day, month, Timezone } from "chronoshift";
 import { TimeRange } from "plywood";
-import * as React from "react";
+import React from "react";
 import { Locale } from "../../../common/models/locale/locale";
 import { cyclicShift } from "../../../common/utils/functional/functional";
 import { datesEqual, formatYearMonth, getDayInMonth } from "../../../common/utils/time/time";
@@ -117,7 +117,7 @@ export class DateRangePicker extends React.Component<DateRangePickerProps, DateR
 
   getIsSelectable(date: Date): boolean {
     const { hoverTimeRange, selectionSet } = this.state;
-    let inHoverTimeRange = hoverTimeRange && hoverTimeRange.contains(date);
+    const inHoverTimeRange = hoverTimeRange && hoverTimeRange.contains(date);
     return inHoverTimeRange && !selectionSet;
   }
 

@@ -21,19 +21,35 @@ import { HEAT_MAP_MANIFEST } from "../../visualization-manifests/heat-map/heat-m
 import { LINE_CHART_MANIFEST } from "../../visualization-manifests/line-chart/line-chart";
 import { TABLE_MANIFEST } from "../../visualization-manifests/table/table";
 import { TOTALS_MANIFEST } from "../../visualization-manifests/totals/totals";
+import { clientAppSettings } from "../app-settings/app-settings.fixtures";
 import { customClientCube, twitterClientDataCube, wikiClientDataCube } from "../data-cube/data-cube.fixtures";
-import { NumberFilterClause, NumberRange, RelativeTimeFilterClause, TimeFilterPeriod } from "../filter-clause/filter-clause";
-import { boolean, numberRange, stringContains, stringIn, stringMatch, timePeriod, timeRange } from "../filter-clause/filter-clause.fixtures";
+import {
+  NumberFilterClause,
+  NumberRange,
+  RelativeTimeFilterClause,
+  TimeFilterPeriod
+} from "../filter-clause/filter-clause";
+import {
+  boolean,
+  numberRange,
+  stringContains,
+  stringIn,
+  stringMatch,
+  timePeriod,
+  timeRange
+} from "../filter-clause/filter-clause.fixtures";
 import { Filter } from "../filter/filter";
 import { EMPTY_SERIES, SeriesList } from "../series-list/series-list";
 import { measureSeries } from "../series/series.fixtures";
 import { SortDirection } from "../sort/sort";
-import { numberSplitCombine, stringSplitCombine, timeSplitCombine } from "../split/split.fixtures";
+import { booleanSplitCombine, numberSplitCombine, stringSplitCombine, timeSplitCombine } from "../split/split.fixtures";
 import { EMPTY_SPLITS, Splits } from "../splits/splits";
 import { TimeShift } from "../time-shift/time-shift";
+import { VisualizationManifest } from "../visualization-manifest/visualization-manifest";
 import { Essence, EssenceValue, VisStrategy } from "./essence";
 
 const defaultEssence: EssenceValue = {
+  appSettings: clientAppSettings,
   dataCube: customClientCube("essence-fixture-data-cube", "essence-fixture-data-cube"),
   visualization: null,
   visualizationSettings: null,
@@ -70,7 +86,7 @@ export class EssenceFixtures {
   static lineChart(): EssenceValue {
     return {
       ...defaultEssence,
-      visualization: LINE_CHART_MANIFEST
+      visualization: LINE_CHART_MANIFEST as unknown as VisualizationManifest
     };
   }
 
@@ -95,6 +111,7 @@ export class EssenceFixtures {
       stringSplitCombine("namespace", { sort: { reference: "added", direction: SortDirection.descending }, limit: 5 })
     ];
     return new Essence({
+      appSettings: clientAppSettings,
       dataCube: wikiClientDataCube,
       visualization: HEAT_MAP_MANIFEST,
       visualizationSettings: HEAT_MAP_MANIFEST.visualizationSettings.defaults,
@@ -119,7 +136,7 @@ export class EssenceFixtures {
     ];
     const splitCombines = [
       stringSplitCombine("channel", { sort: { reference: "delta", direction: SortDirection.descending }, limit: 50 }),
-      stringSplitCombine("isRobot", { sort: { reference: "delta", direction: SortDirection.descending }, limit: 5 }),
+      booleanSplitCombine("isRobot", { sort: { reference: "delta", direction: SortDirection.descending }, limit: 5 }),
       numberSplitCombine("commentLength", 10, { sort: { reference: "delta", direction: SortDirection.descending }, limit: 5 }),
       timeSplitCombine("time", "PT1H", { sort: { reference: "delta", direction: SortDirection.descending }, limit: null })
     ];
@@ -129,8 +146,9 @@ export class EssenceFixtures {
       measureSeries("added")
     ];
     return new Essence({
+      appSettings: clientAppSettings,
       dataCube: wikiClientDataCube,
-      visualization: TABLE_MANIFEST,
+      visualization: TABLE_MANIFEST as unknown as VisualizationManifest,
       visualizationSettings: TABLE_MANIFEST.visualizationSettings.defaults,
       timezone: Timezone.fromJS("Etc/UTC"),
       timeShift: TimeShift.empty(),
@@ -157,8 +175,9 @@ export class EssenceFixtures {
       measureSeries("added")
     ];
     return new Essence({
+      appSettings: clientAppSettings,
       dataCube: wikiClientDataCube,
-      visualization: LINE_CHART_MANIFEST,
+      visualization: LINE_CHART_MANIFEST as unknown as VisualizationManifest,
       visualizationSettings: LINE_CHART_MANIFEST.visualizationSettings.defaults,
       timezone: Timezone.fromJS("Etc/UTC"),
       timeShift: TimeShift.empty(),

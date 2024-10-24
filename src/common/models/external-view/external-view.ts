@@ -30,7 +30,7 @@ export interface ExternalViewValue {
   sameWindow?: boolean;
 }
 
-var check: Class<ExternalViewValue, ExternalViewValue>;
+let check: Class<ExternalViewValue, ExternalViewValue>;
 
 export class ExternalView implements Instance<ExternalViewValue, ExternalViewValue> {
 
@@ -39,7 +39,7 @@ export class ExternalView implements Instance<ExternalViewValue, ExternalViewVal
   }
 
   static fromJS(parameters: ExternalViewValue): ExternalView {
-    var value = parameters;
+    const value = parameters;
     return new ExternalView({
       title: value.title,
       linkGenerator: value.linkGenerator,
@@ -60,7 +60,7 @@ export class ExternalView implements Instance<ExternalViewValue, ExternalViewVal
 
     this.title = title;
     this.linkGenerator = linkGenerator;
-    var linkGeneratorFnRaw: any = null;
+    let linkGeneratorFnRaw: any = null;
     try {
       // dataSource is for back compat.
       linkGeneratorFnRaw = new Function("dataCube", "dataSource", "timezone", "filter", "splits", linkGenerator) as LinkGenerator;
@@ -72,8 +72,7 @@ export class ExternalView implements Instance<ExternalViewValue, ExternalViewVal
       try {
         return linkGeneratorFnRaw(dataCube, dataCube, timezone, filter, splits);
       } catch (e) {
-        console.warn(`Error with custom link generating function '${title}': ${e.message} [${linkGenerator}]`);
-        return null;
+        throw new Error(`Error with custom link generating function '${title}': ${e.message} [${linkGenerator}]`);
       }
     };
 
@@ -81,7 +80,7 @@ export class ExternalView implements Instance<ExternalViewValue, ExternalViewVal
   }
 
   public toJS(): ExternalViewValue {
-    var js: ExternalViewValue = {
+    const js: ExternalViewValue = {
       title: this.title,
       linkGenerator: this.linkGenerator
     };
@@ -90,7 +89,7 @@ export class ExternalView implements Instance<ExternalViewValue, ExternalViewVal
   }
 
   public valueOf(): ExternalViewValue {
-    var value: ExternalViewValue = {
+    const value: ExternalViewValue = {
       title: this.title,
       linkGenerator: this.linkGenerator
     };
