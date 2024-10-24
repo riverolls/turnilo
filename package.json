@@ -142,6 +142,7 @@
     "base64-arraybuffer": "0.2.0",
     "chai": "4.2.0",
     "chai-datetime": "1.5.0",
+    "code-inspector-plugin": "0.17.3",
     "create-react-class": "15.6.2",
     "css-loader": "2.1.1",
     "css-modules-require-hook": "4.2.3",
@@ -187,5 +188,8 @@
     "webpack-dev-middleware": "3.7.2",
     "webpack-hot-middleware": "2.25.0",
     "webpack-merge": "4.2.2"
+  },
+  "volta": {
+    "node": "14.21.3"
   }
 }

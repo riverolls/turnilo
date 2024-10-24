@@ -83,6 +83,8 @@ export class FilterTilesRow extends React.Component<FilterTilesRowProps, FilterT
         return true;
       case DraggedElementType.MEASURE:
         return false;
+      case DraggedElementType.MEASUREGROUP:
+        return false;
       case DraggedElementType.SERIES:
         return false;
       case DraggedElementType.NONE:
@@ -186,13 +188,13 @@ export class FilterTilesRow extends React.Component<FilterTilesRowProps, FilterT
     const { essence } = this.context;
     const { addPartialFilter } = this.props;
     addPartialFilter(dimension, DragPosition.insertAt(essence.filter.length()));
-  }
+  };
 
   removeFilter = (clause: FilterClause) => {
     const { essence, clicker } = this.context;
     clicker.changeFilter(essence.filter.removeClause(clause.reference));
     this.closeOverflowMenu();
-  }
+  };
 
   render() {
     const { dragPosition, openedClause, overflowOpen } = this.state;
@@ -217,17 +219,17 @@ export class FilterTilesRow extends React.Component<FilterTilesRowProps, FilterT
           overflowOpen={overflowOpen}
           closeOverflowMenu={this.closeOverflowMenu}
           openedFilterMenu={openedClause}
-          openOverflowMenu={this.openOverflowMenu}/>
+          openOverflowMenu={this.openOverflowMenu} />
       </div>
       <AddFilter
         menuStage={menuStage}
         essence={essence}
-        appendFilter={this.appendFilter}/>
+        appendFilter={this.appendFilter} />
       <DragIndicator
         dragOver={this.dragOver}
         dragLeave={this.dragLeave}
         drop={this.drop}
-        dragPosition={dragPosition}/>
+        dragPosition={dragPosition} />
     </div>;
   }
 }

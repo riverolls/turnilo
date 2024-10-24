@@ -92,6 +92,8 @@ export class SplitTilesRow extends React.Component<SplitTilesRowProps, SplitTile
         return true;
       case DraggedElementType.MEASURE:
         return false;
+      case DraggedElementType.MEASUREGROUP:
+        return false;
       case DraggedElementType.SERIES:
         return false;
       case DraggedElementType.NONE:

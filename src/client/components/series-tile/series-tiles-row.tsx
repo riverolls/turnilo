@@ -87,9 +87,24 @@ export class SeriesTilesRow extends React.Component<SeriesTilesRowProps, SeriesT
   };
 
   canDrop(): boolean {
-    const { essence: { series: seriesList } } = this.context;
+    const { essence: { series: seriesList, dataCube } } = this.context;
     const measure = DragManager.draggingMeasure();
     if (measure) return !seriesList.hasMeasure(measure);
+    const measureGroup = DragManager.draggingMeasureGroup();
+    if (measureGroup) {
+      // 判断是否所有 measure 都不在 seriesList 中
+      const allMeasures = dataCube.measures;
+      let flag = false;
+      for (const item of measureGroup.measures) {
+        const measure = allMeasures.byName[item as string];
+        if (!measure) continue;
+        if (!seriesList.hasMeasure(measure)) {
+          flag = true;
+          break;
+        }
+      }
+      return flag;
+    }
     return DragManager.isDraggingSeries();
   }
 
@@ -148,11 +163,50 @@ export class SeriesTilesRow extends React.Component<SeriesTilesRowProps, SeriesT
     if (DragManager.isDraggingSeries()) {
       this.rearrangeSeries(DragManager.draggingSeries(), this.calculateDragPosition(e));
     } else {
-      this.dropNewSeries(fromMeasure(DragManager.draggingMeasure()), this.calculateDragPosition(e));
+      const measure = DragManager.draggingMeasure();
+      if (measure) {
+        const dragging: MeasureSeries | QuantileSeries = fromMeasure(measure);
+        this.dropNewSeries(dragging, this.calculateDragPosition(e));
+      }
+      else {
+        this.handleDropGroup(e);
+      }
+    }
+  };
+
+  private handleDropGroup = (e: React.DragEvent<HTMLElement>) => {
+    const { essence: { dataCube, series: seriesList } } = this.context;
+    const allMeasures = dataCube.measures;
+    const group = DragManager.draggingMeasureGroup();
+    let dragP = this.calculateDragPosition(e);
+    // console.log('组', dragP);
+    let originReplace = dragP.replace;
+    if (!originReplace) originReplace = dragP.insert;
+    for (let i = 0; i < group.measures.length; i++) {
+      const element = group.measures[i];
+      const measure = allMeasures.byName[element as string];
+      if (!measure) continue;
+      // console.log('成员', measure);
+      const dragging = fromMeasure(measure);
+      const insertMeasure = (index: number, measure: Measure) => {
+        if (seriesList.hasMeasure(measure)) {
+          originReplace--;
+          return;
+        }
+        const insert = originReplace + index;
+        // console.log('插入位置', insert);
+        dragP.insert = insert;
+        if (index > 0) dragP.replace = null;
+        this.dropNewSeries(dragging, dragP);
+      };
+      setTimeout(() => {
+        insertMeasure(i, measure);
+      }, 150);
     }
   };
 
   private dropNewSeries(newSeries: Series, dragPosition: DragPosition) {
+    // console.log('放置新的series', newSeries.reference);
     const { addPartialSeries } = this.props;
     const { clicker, essence: { series } } = this.context;
     const isDuplicateQuantile = newSeries instanceof QuantileSeries && series.hasSeries(newSeries);

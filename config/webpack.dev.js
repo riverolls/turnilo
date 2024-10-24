@@ -14,24 +14,28 @@
  * limitations under the License.
  */
 
-const common = require("./webpack.common");
-const merge = require("webpack-merge");
-const webpack = require('webpack');
-const hotMiddlewareScript = 'webpack-hot-middleware/client';
+const common = require("./webpack.common")
+const merge = require("webpack-merge")
+const webpack = require("webpack")
+const hotMiddlewareScript = "webpack-hot-middleware/client"
+const { codeInspectorPlugin } = require("code-inspector-plugin")
 
 module.exports = merge.smart(common, {
-  mode: 'development',
+  mode: "development",
   entry: {
-    main: [hotMiddlewareScript, "./src/client/main.tsx"]
+    main: [hotMiddlewareScript, "./src/client/main.tsx"],
   },
   output: {
-    publicPath: '/',
-    pathinfo: false
+    publicPath: "/",
+    pathinfo: false,
   },
   plugins: [
     new webpack.DefinePlugin({
-      'process.env.NODE_ENV': JSON.stringify('dev-hmr')
+      "process.env.NODE_ENV": JSON.stringify("dev-hmr"),
     }),
     new webpack.HotModuleReplacementPlugin(),
-  ]
-});
+    codeInspectorPlugin({
+      bundler: "webpack",
+    }),
+  ],
+})
