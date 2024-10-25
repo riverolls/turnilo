@@ -27,9 +27,9 @@ import { Timekeeper } from "../timekeeper/timekeeper";
 
 export interface ChartProps {
   data: Dataset;
-  clicker: Clicker;
+  clicker?: Clicker;
   essence: Essence;
-  timekeeper: Timekeeper;
+  timekeeper?: Timekeeper;
   stage: Stage;
   dropHighlight: Nullary<void>;
   acceptHighlight: Nullary<void>;

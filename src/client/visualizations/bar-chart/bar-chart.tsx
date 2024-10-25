@@ -24,6 +24,7 @@ import { DateRange } from "../../../common/models/date-range/date-range";
 import { canBucketByDefault, Dimension } from "../../../common/models/dimension/dimension";
 import { findDimensionByName } from "../../../common/models/dimension/dimensions";
 import {
+  BooleanFilterClause,
   FilterClause,
   FixedTimeFilterClause,
   NumberFilterClause,
@@ -112,6 +113,8 @@ function getFilterFromDatum(splits: Splits, dataPath: Datum[]): List<FilterClaus
         return new FixedTimeFilterClause({ reference, values: List.of(new DateRange(segment)) });
       case SplitType.string:
         return new StringFilterClause({ reference, action: StringFilterAction.IN, values: Set.of(segment) });
+      case SplitType.boolean:
+        return new BooleanFilterClause({ reference, values: Set.of(segment) });
     }
   }));
 }
@@ -133,7 +136,7 @@ function padDataset(originalDataset: Dataset, dimension: Dimension, measures: Me
   const filledData: Datum[] = [];
   data.forEach(d => {
     let segmentValue = d[dimensionName];
-    const segmentStart = (segmentValue as PlywoodRange).start;
+    const segmentStart = (segmentValue as PlywoodRange).start as number;
     while (i < segmentStart) {
       filledData[j] = {};
       filledData[j][dimensionName] = NumberRange.fromJS({
@@ -174,12 +177,12 @@ export default function BarChartVisualization(props: VisualizationProps) {
   if (newVersionSupports(props.essence)) {
     return <React.Fragment>
       <TimeSeriesVisualizationControls {...props} />
-      <ChartPanel {...props} queryFactory={makeQuery} chartComponent={ImprovedBarChart} />
+      <ChartPanel {...props} chartComponent={ImprovedBarChart} />
     </React.Fragment>;
   }
   return <React.Fragment>
     <DefaultVisualizationControls {...props} />
-    <ChartPanel {...props} queryFactory={makeQuery} chartComponent={BarChart} />
+    <ChartPanel {...props} chartComponent={BarChart} />
   </React.Fragment>;
 }
 
@@ -336,7 +339,7 @@ class BarChart extends React.Component<ChartProps, BarChartState> {
     const xScale = this.getPrimaryXScale();
     const { essence, stage } = this.props;
 
-    const { stepWidth } = this.getBarDimensions(xScale.rangeBand());
+    const { stepWidth } = this.getBarDimensions(xScale.bandwidth());
     const xTicks = xScale.domain();
     const width = xTicks.length > 0 ? roundToPx(xScale(xTicks[xTicks.length - 1])) + stepWidth : 0;
 
@@ -787,7 +790,7 @@ class BarChart extends React.Component<ChartProps, BarChartState> {
     }
   }
 
-  getPrimaryXScale(): d3.scale.Ordinal<string, number> {
+  getPrimaryXScale(): d3.ScaleBand<string> {
     const { data } = this.props;
     const { maxNumberOfLeaves } = this.state;
     const dataset = (data.data[0][SPLIT] as Dataset).data;
@@ -801,9 +804,9 @@ class BarChart extends React.Component<ChartProps, BarChartState> {
 
     const { usedWidth, padLeft } = this.getXValues(maxNumberOfLeaves);
 
-    return d3.scale.ordinal()
+    return d3.scaleBand()
       .domain(dataset.map(getX))
-      .rangeBands([padLeft, padLeft + usedWidth]);
+      .range([padLeft, padLeft + usedWidth]);
   }
 
   getBarDimensions(xRangeBand: number): { stepWidth: number, barWidth: number, barOffset: number; } {
@@ -837,7 +840,7 @@ class BarChart extends React.Component<ChartProps, BarChartState> {
     return { padLeft, usedWidth };
   }
 
-  getBarsCoordinates(chartIndex: number, xScale: d3.scale.Ordinal<string, number>): BarCoordinates[] {
+  getBarsCoordinates(chartIndex: number, xScale: d3.ScaleBand<string>): BarCoordinates[] {
     if (!!this.coordinatesCache[chartIndex]) {
       return this.coordinatesCache[chartIndex];
     }
@@ -872,14 +875,14 @@ class BarChart extends React.Component<ChartProps, BarChartState> {
     series: ConcreteSeries,
     chartStage: Stage,
     getX: (d: Datum, i: number) => string,
-    xScale: d3.ScaleOrdinal<string, number>,
+    xScale: d3.ScaleBand<string>,
     scaleY: d3.ScaleLinear<number, number>,
     splitIndex = 1
   ): BarCoordinates[] {
     const { essence } = this.props;
     const { maxNumberOfLeaves } = this.state;
 
-    const { stepWidth, barWidth, barOffset } = this.getBarDimensions(xScale.rangeBand());
+    const { stepWidth, barWidth, barOffset } = this.getBarDimensions(xScale.bandwidth());
 
     const coordinates: BarCoordinates[] = data.map((d, i) => {
       let x = xScale(getX(d, i));
@@ -901,9 +904,9 @@ class BarChart extends React.Component<ChartProps, BarChartState> {
         let subStage: Stage = new Stage({ x, y: chartStage.y, width: barWidth, height: chartStage.height });
         let subGetX: any = (d: Datum, i: number) => String(i);
         let subData: Datum[] = (d[SPLIT] as Dataset).data;
-        let subxScale = d3.scale.ordinal()
+        let subxScale = d3.scaleBand()
           .domain(d3.range(0, maxNumberOfLeaves[splitIndex]).map(String))
-          .rangeBands([x + barOffset, x + subStage.width]);
+          .range([x + barOffset, x + subStage.width]);
 
         coordinate.children = this.getSubCoordinates(subData, series, subStage, subGetX, subxScale, scaleY, splitIndex + 1);
       }
@@ -938,7 +941,7 @@ class BarChart extends React.Component<ChartProps, BarChartState> {
         dropHighlight={dropHighlight}
         acceptHighlight={acceptHighlight}
         saveHighlight={saveHighlight}
-        dataset={data}
+        data={data}
         essence={essence}
         stage={stage} />;
     }

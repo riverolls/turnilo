@@ -27,7 +27,7 @@ const TICK_HEIGHT = 5;
 export interface BucketMarksProps {
   stage: Stage;
   ticks: PlywoodValue[];
-  scale: d3.ScaleBand<PlywoodValue>;
+  scale: any;
 }
 
 export interface BucketMarksState {

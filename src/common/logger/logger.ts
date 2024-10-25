@@ -37,18 +37,18 @@ export interface Logger {
 }
 
 class JSONLogger implements Logger {
-
-  constructor(private logger = "turnilo") {
-  }
+  constructor(private logger = "turnilo") {}
 
   private logMessage(level: LogLevel, message: string, extra: Record<string, unknown> = {}) {
-    console.log(JSON.stringify({
-      message,
-      level,
-      "@timestamp": isoNow(),
-      "logger": this.logger,
-      ...extra
-    }));
+    console.log(
+      JSON.stringify({
+        message,
+        level,
+        "@timestamp": isoNow(),
+        logger: this.logger,
+        ...extra,
+      })
+    );
   }
 
   log(message: string, extra: Record<string, unknown> = {}) {
@@ -69,8 +69,7 @@ class JSONLogger implements Logger {
 }
 
 class ConsoleLogger implements Logger {
-  constructor(private prefix = "") {
-  }
+  constructor(private prefix = "") {}
 
   error(message: string) {
     console.error(this.prefix, message);
@@ -88,7 +87,7 @@ class ConsoleLogger implements Logger {
     return new ConsoleLogger(loggerId);
   }
 }
-
+export const LOGGER: Logger = new ConsoleLogger();
 class AlwaysStdErrLogger implements Logger {
   setLoggerId(): Logger {
     return this;
@@ -111,14 +110,14 @@ export const NOOP_LOGGER: Logger = {
   error: noop,
   warn: noop,
   log: noop,
-  setLoggerId: () => NOOP_LOGGER
+  setLoggerId: () => NOOP_LOGGER,
 };
 
 const LOGGERS: Record<LoggerFormat, Logger> = {
   noop: NOOP_LOGGER,
   json: new JSONLogger(),
   plain: new ConsoleLogger(),
-  error: new AlwaysStdErrLogger()
+  error: new AlwaysStdErrLogger(),
 } as const;
 
 export function getLogger(format: LoggerFormat): Logger {
