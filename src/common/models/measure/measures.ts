@@ -119,14 +119,19 @@ export function findMeasureByName(measures: Measures, measureName: string): Meas
   return measures.byName[measureName] || null;
 }
 export function findMeasureGroupByName(measures: Measures, groupName: string): MeasuresGroup | null {
-  for (const element of measures.tree) {
-    if (typeof element === "object") {
-      if (element.name === groupName) {
-        return element;
+  let target: MeasuresGroup | null = null
+  const traverseTree = (tree: MeasureOrGroup[]) => {
+    for (const el of tree) {
+      if (typeof el === 'object') {
+        if (el.name === groupName) { target = el; return }
+        Array.isArray(el.measures) && traverseTree(el.measures)
+        if (target) return
       }
     }
   }
-  return null;
+
+  traverseTree(measures.tree)
+  return target
 }
 
 export function hasMeasureWithName(measures: Measures, measureName: string): boolean {
