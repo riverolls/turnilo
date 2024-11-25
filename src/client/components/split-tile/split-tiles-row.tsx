@@ -108,7 +108,7 @@ export class SplitTilesRow extends React.Component<SplitTilesRowProps, SplitTile
     DragManager.setDragSplit(split);
     setDragGhost(dataTransfer, label);
 
-    this.closeOverflowMenu();
+    // this.closeOverflowMenu();
   };
 
   calculateDragPosition(e: React.DragEvent<HTMLElement>): DragPosition {

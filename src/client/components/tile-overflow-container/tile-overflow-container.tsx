@@ -26,6 +26,7 @@ interface TileOverflowContainerMenuProps {
   items: JSX.Element[];
   openOn: Element;
   closeOverflowMenu: Fn;
+  onDragEnter?: (e: React.DragEvent<HTMLElement>) => void
 }
 
 const SEGMENT_HEIGHT = 29 + CORE_ITEM_GAP;
@@ -42,6 +43,7 @@ const TileOverflowContainerMenu: React.FunctionComponent<TileOverflowContainerMe
     stage={Stage.fromSize(208, CORE_ITEM_GAP + (items.length * SEGMENT_HEIGHT))}
     fixedSize={true}
     openOn={openOn}
+    onDragEnter={props.onDragEnter}
     onClose={closeOverflowMenu}
   >
     {positionedItems}
@@ -73,6 +75,7 @@ export const TileOverflowContainer: React.FunctionComponent<TileOverflowContaine
       {open && openOn && <TileOverflowContainerMenu
         openOn={openOn}
         items={items}
+        onDragEnter={(e) => e.stopPropagation()}
         closeOverflowMenu={closeOverflowMenu} />}
     </React.Fragment>}
   </WithRef>;

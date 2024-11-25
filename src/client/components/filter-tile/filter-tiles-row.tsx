@@ -101,7 +101,7 @@ export class FilterTilesRow extends React.Component<FilterTilesRowProps, FilterT
     DragManager.setDragFilter(clause);
     setDragGhost(dataTransfer, label);
 
-    this.closeOverflowMenu();
+    // this.closeOverflowMenu();
   };
 
   calculateDragPosition(e: React.DragEvent<HTMLElement>): DragPosition {

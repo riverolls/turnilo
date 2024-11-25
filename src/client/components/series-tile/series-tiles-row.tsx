@@ -115,7 +115,7 @@ export class SeriesTilesRow extends React.Component<SeriesTilesRowProps, SeriesT
     DragManager.setDragSeries(series);
     setDragGhost(dataTransfer, label);
 
-    this.closeOverflowMenu();
+    // this.closeOverflowMenu();
   };
 
   calculateDragPosition(e: React.DragEvent<HTMLElement>): DragPosition {

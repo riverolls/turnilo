@@ -44,6 +44,7 @@ export interface BubbleMenuProps {
   inside?: Element;
   layout?: BubbleLayout;
   align?: Align;
+  onDragEnter?: (e: React.DragEvent<HTMLElement>) => void
 }
 
 export interface BubbleMenuState {
@@ -266,7 +267,9 @@ export class BubbleMenu extends React.Component<BubbleMenuProps, BubbleMenuState
     const myClass = classNames("bubble-menu", direction, className, { mini: layout === "mini" });
 
     return <BodyPortal left={left} top={top} bottom={bottom}>
-      <div className={myClass} id={id} data-parent={insideId} style={menuSize}>
+      <div
+        onDragEnter={this.props.onDragEnter}
+        className={myClass} id={id} data-parent={insideId} style={menuSize}>
         {children}
         {hasShpitz && <Shpitz style={shpitzCoordinates} direction={direction} />}
       </div>
