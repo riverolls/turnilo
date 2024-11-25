@@ -50,7 +50,7 @@ export const DEFAULT_SERIES_COLORS = [
   "#D49E37",
 ];
 
-export const DEFAULT_MAIN_COLOR = "#FF5900";
+export const DEFAULT_MAIN_COLOR = "#008ADC";
 
 export const DEFAULT_COLORS: VisualizationColors = {
   main: DEFAULT_MAIN_COLOR,
