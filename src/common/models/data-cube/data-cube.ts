@@ -71,7 +71,7 @@ export const DEFAULT_DEFAULT_TIMEZONE = Timezone.UTC;
 const DEFAULT_DEFAULT_FILTER = EMPTY_FILTER;
 const DEFAULT_DEFAULT_SPLITS = EMPTY_SPLITS;
 export const DEFAULT_DEFAULT_DURATION = Duration.fromJS("P1D");
-export const DEFAULT_MAX_SPLITS = 3;
+export const DEFAULT_MAX_SPLITS = 4;
 export const DEFAULT_MAX_QUERIES = 500;
 
 function checkDimensionsAndMeasuresNamesUniqueness(dimensions: Dimensions, measures: Measures, dataCubeName: string) {

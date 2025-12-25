@@ -15,4 +15,4 @@
  */
 
 export const DEFAULT_LIMIT = 10;
-export const DEFAULT_LIMITS = [5, 10, 25, 30];
+export const DEFAULT_LIMITS = [50, 100, 200, 500, 1000, 10000];
